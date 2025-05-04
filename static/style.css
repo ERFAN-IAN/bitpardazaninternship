@@ -1,0 +1,13 @@
+.gridrow {
+  display: grid;
+  grid-template-columns: 1fr 1fr 1fr 1fr 1fr;
+  gap: 2rem;
+}
+.flexend {
+  display: flex;
+  justify-content: end;
+}
+.flexcenter {
+  display: flex;
+  justify-content: center;
+}

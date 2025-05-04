@@ -1,0 +1,7 @@
+<form method="post" action="">
+  {% csrf_token %} {{form}}
+  <button type="submit">Submit</button>
+  {% comment %}
+  <button><a href="{% url 'delete_author' author.id %}">Delete</a></button>
+  {%endcomment %}
+</form>
