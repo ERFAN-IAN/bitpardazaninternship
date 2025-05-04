@@ -1,3 +1,6 @@
+{% extends "base.html" %}
+{% load render_table from django_tables2 %}
+{% block content %}
 <h2>{{ author.first_name }} {{ author.last_name }}</h2>
 <p>Age: {{ author.age }}</p>
 <p>National ID: {{ author.national_id }}</p>
@@ -15,15 +18,19 @@
 </form>
 
 <a href="{% url 'add_book' author.id %}">Add Book</a>
-<ul>
-  {% for book in books %}
-  <li>
-    {{ book.title }} ({{ book.publication_year }})
-    <a href="{% url 'edit_book' book.id %}">Edit</a>
-    <a href="{% url 'delete_book' book.id %}">Delete</a>
-  </li>
-  {% empty %}
-  <li>No books found.</li>
-  {% endfor %}
-</ul>
+{#<ul>#}
+{#  {% for book in books %}#}
+{#  <li>#}
+{#    {{ book.title }} ({{ book.publication_year }})#}
+{#    <a href="{% url 'edit_book' book.id %}">Edit</a>#}
+{#    <a href="{% url 'delete_book' book.id %}">Delete</a>#}
+{#  </li>#}
+{#  {% empty %}#}
+{#  <li>No books found.</li>#}
+{#  {% endfor %}#}
+{##}
+{#</ul>#}
+{% render_table book_table %}
 <a href="/">Home</a>
+{% endblock %}
+

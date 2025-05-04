@@ -10,12 +10,15 @@ from django.urls import reverse_lazy, reverse
 from .models import Author, Book
 from django.db.models import Q,Count
 from django.shortcuts import get_object_or_404, redirect
+from django_tables2 import SingleTableView
+from .tables import AuthorBooksTable, AuthorTable, AuthorBookCountTable
 # Create your views here.
 
 
-class AuthorListView(ListView):
+class AuthorListView(SingleTableView):
     model = Author
     template_name = "app/home.html"
+    table_class = AuthorTable
     context_object_name = "authors"
 
     def get_queryset(self):
@@ -67,7 +70,8 @@ class AuthorDetailView(DetailView):
         books = self.object.books.all()
         if book_query:
             books = books.filter(title__icontains=book_query)
-        context["books"] = books
+        book_table = AuthorBooksTable(books)
+        context["book_table"] = book_table
         return context
 
 
@@ -101,11 +105,11 @@ class BookDeleteView(DeleteView):
     def get_success_url(self):
         return reverse("author_detail", kwargs={"pk": self.object.author.id})
 
-class AuthorBookView(ListView):
+class AuthorBookView(SingleTableView):
     model = Author
     template_name = "app/AuthorBookView.html"
     context_object_name = "authors"
-
+    table_class = AuthorBookCountTable
     def get_queryset(self):
         # Prefetch books related to each author
         return Author.objects.annotate(book_count=Count('books')).all()
