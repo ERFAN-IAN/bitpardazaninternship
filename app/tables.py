@@ -19,8 +19,7 @@ class AuthorBooksTable(tables.Table):
         attrs = {'class': 'table table-bordered'}
 
 class AuthorBookCountTable(tables.Table):
-    book_count = tables.Column()
-
+    book_count = tables.Column(footer=lambda table: sum(x.book_count for x in table.data))
     class Meta:
         model = Author
         fields = ("first_name", "last_name", "book_count")
