@@ -12,10 +12,11 @@ from django.db.models import Q,Count
 from django.shortcuts import get_object_or_404, redirect
 from django_tables2 import SingleTableView
 from .tables import AuthorBooksTable, AuthorTable, AuthorBookCountTable
+from django_tables2.export.views import ExportMixin
 # Create your views here.
 
 
-class AuthorListView(SingleTableView):
+class AuthorListView(ExportMixin, SingleTableView):
     model = Author
     template_name = "app/home.html"
     table_class = AuthorTable
