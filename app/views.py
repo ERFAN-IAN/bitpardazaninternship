@@ -13,25 +13,28 @@ from django.shortcuts import get_object_or_404, redirect
 from django_tables2 import SingleTableView
 from .tables import AuthorBooksTable, AuthorTable, AuthorBookCountTable
 from django_tables2.export.views import ExportMixin
+from django_filters.views import FilterView
+from .filters import AuthorFilter
 # Create your views here.
 
 
-class AuthorListView(ExportMixin, SingleTableView):
+class AuthorListView(FilterView, ExportMixin, SingleTableView):
     model = Author
     template_name = "app/home.html"
     table_class = AuthorTable
     context_object_name = "authors"
-
-    def get_queryset(self):
-        query = self.request.GET.get("q")
-        print(query)
-        if query:
-            return Author.objects.filter(
-                Q(first_name__icontains=query)
-                | Q(last_name__icontains=query)
-                | Q(national_id__icontains=query)
-            )
-        return Author.objects.all()
+    filterset_class = AuthorFilter
+    # filterset_fields = ["first_name"]
+    # def get_queryset(self):
+    #     query = self.request.GET.get("q")
+    #     print(query)
+    #     if query:
+    #         return Author.objects.filter(
+    #             Q(first_name__icontains=query)
+    #             | Q(last_name__icontains=query)
+    #             | Q(national_id__icontains=query)
+    #         )
+    #     return Author.objects.all()
 
 
 class AuthorCreateView(CreateView):

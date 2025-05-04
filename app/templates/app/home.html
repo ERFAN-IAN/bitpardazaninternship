@@ -1,17 +1,22 @@
 {% extends "base.html" %} {% block title %}authors{% endblock title %}
 {% load render_table from django_tables2 %}
 {% block content %}
-<section>
-  <form method="get" action="" class="flexcenter">
-    <input
-      type="text"
-      name="q"
-      placeholder="Search authors..."
-      value="{{ request.GET.q }}"
-    />
-    <button type="submit">Search</button>
-  </form>
-</section>
+{#<section>#}
+{#  <form method="get" action="" class="flexcenter">#}
+{#    <input#}
+{#      type="text"#}
+{#      name="q"#}
+{#      placeholder="Search authors..."#}
+{#      value="{{ request.GET.q }}"#}
+{#    />#}
+{#    <button type="submit">Search</button>#}
+{#  </form>#}
+{##}
+{#</section>#}
+        <form method="get">
+            {{ filter.form }}
+            <button type="submit">Filter</button>
+        </form>
 {#<section>#}
 {#  <div class="flexend">#}
 {#    <a href="{% url 'add_author' %}">Add author</a>#}
@@ -29,7 +34,13 @@
 {##}
 {#  {% endfor %}#}
 {% render_table table %}
-    <a href="/?_export=csv">Download the table</a>
+    {% if request.get_full_path == "/" %}
+        <a href="/?_export=csv">Download the table</a>
+        {% else %}
+        <a href="{{ request.get_full_path }}&_export=csv">Download the table</a>
+    {% endif %}
+
+
     <a href="author_book">Author's book count</a>
 </section>
 {% endblock content %}
