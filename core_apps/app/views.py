@@ -8,9 +8,8 @@ from django.views.generic import (
 )
 from django.urls import reverse_lazy, reverse
 from .models import Author, Book
-from django.db.models import Q
+from django.db.models import Q,Count
 from django.shortcuts import get_object_or_404, redirect
-
 # Create your views here.
 
 
@@ -101,3 +100,12 @@ class BookDeleteView(DeleteView):
 
     def get_success_url(self):
         return reverse("author_detail", kwargs={"pk": self.object.author.id})
+
+class AuthorBookView(ListView):
+    model = Author
+    template_name = "app/AuthorBookView.html"
+    context_object_name = "authors"
+
+    def get_queryset(self):
+        # Prefetch books related to each author
+        return Author.objects.annotate(book_count=Count('books')).all()

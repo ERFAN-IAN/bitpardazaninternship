@@ -1,0 +1,18 @@
+{% extends "base.html" %} {% block title %}authors{% endblock title %} fillerrr
+{% block content %}
+<section>
+  <div class="flexend">
+    <a href="{% url 'add_author' %}">Add author</a>
+  </div>
+
+  {% for author in authors %}
+  <article class="gridrow">
+    <p>{{author.first_name}}</p>
+    <p>{{author.last_name}}</p>
+    <p>{{author.book_count}}</p>
+
+  </article>
+
+  {% endfor %}
+</section>
+{% endblock content %}
