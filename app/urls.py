@@ -12,9 +12,11 @@ from .views import (
     AuthorBookCountView,
     AuthorBookMixinView,
     AuthorBookTreeView,
-    # author_book_tree_json
+    AuthorBookPieView,
+    # AuthorSlickView
 )
 
+# author_book_tree_json,
 urlpatterns = [
     path("", AuthorListView.as_view(), name="home"),
     path("add_author", AuthorCreateView.as_view(), name="add_author"),
@@ -28,4 +30,6 @@ urlpatterns = [
     path("author_bookmixin", AuthorBookMixinView.as_view(), name="authorbookmixin"),
     path('authors-tree/', AuthorBookTreeView.as_view(), name='author-book-tree'),
     # path('authors-tree/json/', author_book_tree_json, name='author-book-tree-json'),
+    path('standalone_pie/', AuthorBookPieView.as_view(), name='standalone_pie'),
+    # path('authorslick', AuthorSlickView.as_view(), name='authorslick'),
 ]

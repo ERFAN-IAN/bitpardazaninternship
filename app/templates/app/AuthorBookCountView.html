@@ -14,8 +14,12 @@
 
         <canvas id="authorChart"></canvas>
     </div>
+
     </section>
-        <script>
+    <div style="display: flex;justify-content: center">
+        <a style="text-align: center" href={% url "standalone_pie" %}>Standalone Pie</a>
+    </div>
+    <script>
     const ctx = document.getElementById('authorChart').getContext('2d');
     const chart = new Chart(ctx, {
         type: 'pie',

@@ -19,7 +19,12 @@ from django_filters.views import FilterView
 from django_tables2.views import MultiTableMixin
 from .filters import AuthorFilter
 import json
+from chartjs.views.pie import HighChartPieView
 from django.http import JsonResponse
+from django.db.models import Sum
+from slick_reporting.views import ReportView, Chart
+from slick_reporting.fields import ComputationField
+# from .reports import AuthorBookReport
 
 
 # Create your views here.
@@ -192,4 +197,27 @@ class AuthorBookTreeView(TemplateView):
 #
 #     return JsonResponse(data, safe=False)
 
+class AuthorBookPieView(TemplateView):
+    template_name = "app/standalone_pie_django-chartjs.html"
 
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data(**kwargs)
+
+        # Prepare data
+        authors = Author.objects.annotate(book_count=Count('books'))
+        chart_data = [
+            {"name": author.first_name, "y": author.book_count}
+            for author in authors
+        ]
+
+        context["chart_data"] = chart_data
+        return context
+
+
+# class AuthorSlickView(TemplateView):
+#     template_name = "app/authorslick.html"
+#
+#     def get_context_data(self, **kwargs):
+#         context = super().get_context_data(**kwargs)
+#         context['form'] = None
+#         return context

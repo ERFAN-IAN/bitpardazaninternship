@@ -2,3 +2,6 @@ django==4.2.5
 sqlparse==0.5.3
 asgiref==3.8.1
 mysqlclient
+django_tables2
+django-chartjs
+django-slick-reporting
