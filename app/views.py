@@ -18,6 +18,7 @@ from django_tables2.export.views import ExportMixin
 from django_filters.views import FilterView
 from django_tables2.views import MultiTableMixin
 from .filters import AuthorFilter
+from django.http import JsonResponse
 
 
 # Create your views here.
@@ -143,3 +144,27 @@ class AuthorBookMixinView(MultiTableMixin, TemplateView):
             AuthorBooksTable(Book.objects.all())
         ]
 
+
+class AuthorBookTreeView(TemplateView):
+    template_name = "app/treeview.html"
+
+
+def author_book_tree_json(request):
+    data = []
+
+    for author in Author.objects.prefetch_related('books'):
+        author_node = {
+            "id": f"author-{author.id}",
+            "text": author.first_name,
+            "children": [
+                {
+                    "id": f"book-{book.id}",
+                    "text": book.title,
+                    "children": False
+                }
+                for book in author.books.all()
+            ]
+        }
+        data.append(author_node)
+
+    return JsonResponse(data, safe=False)

@@ -10,7 +10,9 @@ from .views import (
     BookUpdateView,
     BookDeleteView,
     AuthorBookCountView,
-    AuthorBookMixinView
+    AuthorBookMixinView,
+    AuthorBookTreeView,
+    author_book_tree_json
 )
 
 urlpatterns = [
@@ -24,4 +26,6 @@ urlpatterns = [
     path("delete_book/<int:pk>", BookDeleteView.as_view(), name="delete_book"),
     path("author_bookcount", AuthorBookCountView.as_view(), name="authorbookcount"),
     path("author_bookmixin", AuthorBookMixinView.as_view(), name="authorbookmixin"),
+    path('authors-tree/', AuthorBookTreeView.as_view(), name='author-book-tree'),
+    path('authors-tree/json/', author_book_tree_json, name='author-book-tree-json'),
 ]
