@@ -2,15 +2,24 @@ import django_tables2 as tables
 from .models import Author, Book
 from django.db.models import Count
 from django.urls import reverse
+import datetime
 
 class AuthorTable(tables.Table):
     detail = tables.LinkColumn("author_detail", kwargs={"pk": tables.A("pk")}, empty_values=())
+
     class Meta:
         model = Author
         fields = ("first_name", "last_name", "age", "national_id")
         attrs = {'class': 'table table-striped'}
+
     def render_detail(self, record):
         return 'Details'
+
+
+import django_tables2 as tables
+import jdatetime
+from .models import Book
+
 
 class AuthorBooksTable(tables.Table):
     class Meta:
@@ -18,8 +27,18 @@ class AuthorBooksTable(tables.Table):
         fields = ("title", "publication_year")
         attrs = {'class': 'table table-bordered'}
 
+    def render_publication_year(self, value):
+        try:
+            gregorian_date = datetime.date(int(value), 1, 1)
+            jalali_date = jdatetime.date.fromgregorian(date=gregorian_date)
+            return jalali_date.strftime('%Y')
+        except Exception:
+            return "-"
+
+
 class AuthorBookCountTable(tables.Table):
     book_count = tables.Column(footer=lambda table: sum(x.book_count for x in table.data))
+
     class Meta:
         model = Author
         fields = ("first_name", "last_name", "book_count")
