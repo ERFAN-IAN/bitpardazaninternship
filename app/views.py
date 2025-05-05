@@ -117,13 +117,21 @@ class BookDeleteView(DeleteView):
 
 class AuthorBookCountView(SingleTableView):
     model = Author
-    template_name = "app/AuthorBookView.html"
+    template_name = "app/AuthorBookCountView.html"
     context_object_name = "authors"
     table_class = AuthorBookCountTable
 
     def get_queryset(self):
         # Prefetch books related to each author
         return Author.objects.annotate(book_count=Count('books')).all()
+
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data(**kwargs)
+        queryset = self.get_queryset()
+
+        context["chart_labels"] = [author.first_name for author in queryset]
+        context["chart_counts"] = [author.book_count for author in queryset]
+        return context
 
 
 class AuthorBookMixinView(MultiTableMixin, TemplateView):

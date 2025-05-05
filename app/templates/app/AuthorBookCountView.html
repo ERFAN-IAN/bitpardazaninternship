@@ -1,0 +1,42 @@
+{% extends "base.html" %}
+{% block title %}Authors{% endblock %}
+{% load render_table from django_tables2 %}
+
+{% block content %}
+<section>
+    <h1>Authors and Book Counts</h1>
+
+    {% render_table table %}
+<a href="/">Home</a>
+</section>
+    <section style="display: flex;align-content: center;justify-content: center">
+    <div style="max-width: 20rem">
+
+        <canvas id="authorChart"></canvas>
+    </div>
+    </section>
+        <script>
+    const ctx = document.getElementById('authorChart').getContext('2d');
+    const chart = new Chart(ctx, {
+        type: 'pie',
+        data: {
+            labels: {{ chart_labels|safe }},
+            datasets: [{
+                label: 'تعداد کتاب‌ها',
+                data: {{ chart_counts|safe }},
+                backgroundColor: [
+                    '#ff6384', '#36a2eb', '#cc65fe', '#ffce56',
+                    '#2ecc71', '#e67e22', '#1abc9c', '#95a5a6'
+                ],
+            }]
+        },
+        options: {
+            responsive: true,
+            plugins: {
+                legend: { position: 'top' },
+                title: { display: true, text: 'تعداد کتاب‌های هر نویسنده' }
+            }
+        }
+    });
+    </script>
+{% endblock %}
