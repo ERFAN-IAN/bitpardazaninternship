@@ -5,16 +5,21 @@ from django.views.generic import (
     UpdateView,
     DeleteView,
     DetailView,
+    TemplateView
 )
+from django.views.generic.detail import SingleObjectMixin
 from django.urls import reverse_lazy, reverse
 from .models import Author, Book
-from django.db.models import Q,Count
+from django.db.models import Q, Count
 from django.shortcuts import get_object_or_404, redirect
 from django_tables2 import SingleTableView
 from .tables import AuthorBooksTable, AuthorTable, AuthorBookCountTable
 from django_tables2.export.views import ExportMixin
 from django_filters.views import FilterView
+from django_tables2.views import MultiTableMixin
 from .filters import AuthorFilter
+
+
 # Create your views here.
 
 
@@ -24,17 +29,17 @@ class AuthorListView(FilterView, ExportMixin, SingleTableView):
     table_class = AuthorTable
     context_object_name = "authors"
     filterset_class = AuthorFilter
-    # filterset_fields = ["first_name"]
-    # def get_queryset(self):
-    #     query = self.request.GET.get("q")
-    #     print(query)
-    #     if query:
-    #         return Author.objects.filter(
-    #             Q(first_name__icontains=query)
-    #             | Q(last_name__icontains=query)
-    #             | Q(national_id__icontains=query)
-    #         )
-    #     return Author.objects.all()
+
+    def get_queryset(self):
+        query = self.request.GET.get("q")
+        print(query)
+        if query:
+            return Author.objects.filter(
+                Q(first_name__icontains=query)
+                | Q(last_name__icontains=query)
+                | Q(national_id__icontains=query)
+            )
+        return Author.objects.all()
 
 
 class AuthorCreateView(CreateView):
@@ -109,11 +114,24 @@ class BookDeleteView(DeleteView):
     def get_success_url(self):
         return reverse("author_detail", kwargs={"pk": self.object.author.id})
 
-class AuthorBookView(SingleTableView):
+
+class AuthorBookCountView(SingleTableView):
     model = Author
     template_name = "app/AuthorBookView.html"
     context_object_name = "authors"
     table_class = AuthorBookCountTable
+
     def get_queryset(self):
         # Prefetch books related to each author
         return Author.objects.annotate(book_count=Count('books')).all()
+
+
+class AuthorBookMixinView(MultiTableMixin, TemplateView):
+    template_name = "app/AuthorBookMixin.html"
+
+    def get_tables(self):
+        return [
+            AuthorTable(Author.objects.all()),
+            AuthorBooksTable(Book.objects.all())
+        ]
+

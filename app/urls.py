@@ -9,7 +9,8 @@ from .views import (
     BookCreateView,
     BookUpdateView,
     BookDeleteView,
-    AuthorBookView
+    AuthorBookCountView,
+    AuthorBookMixinView
 )
 
 urlpatterns = [
@@ -21,5 +22,6 @@ urlpatterns = [
     path("add_book/<int:pk>", BookCreateView.as_view(), name="add_book"),
     path("edit_book/<int:pk>", BookUpdateView.as_view(), name="edit_book"),
     path("delete_book/<int:pk>", BookDeleteView.as_view(), name="delete_book"),
-    path("author_book", AuthorBookView.as_view(), name="authorbook"),
+    path("author_bookcount", AuthorBookCountView.as_view(), name="authorbookcount"),
+    path("author_bookmixin", AuthorBookMixinView.as_view(), name="authorbookmixin"),
 ]

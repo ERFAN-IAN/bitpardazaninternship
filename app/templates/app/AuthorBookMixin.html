@@ -1,0 +1,19 @@
+{% extends "base.html" %}
+{% load render_table from django_tables2 %}
+{% block content %}
+
+
+    <div style="display: flex; gap: 2rem">
+        <div style="display: flex; flex-direction: column ">
+            <h2>Authors</h2>
+            {% render_table tables.0 %}
+        </div>
+        <div style="display: flex; flex-direction: column ">
+            <h2>Books</h2>
+            {% render_table tables.1 %}
+        </div>
+
+    </div>
+<a href="/">Home</a>
+{% endblock %}
+
