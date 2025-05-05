@@ -12,7 +12,7 @@ from .views import (
     AuthorBookCountView,
     AuthorBookMixinView,
     AuthorBookTreeView,
-    author_book_tree_json
+    # author_book_tree_json
 )
 
 urlpatterns = [
@@ -27,5 +27,5 @@ urlpatterns = [
     path("author_bookcount", AuthorBookCountView.as_view(), name="authorbookcount"),
     path("author_bookmixin", AuthorBookMixinView.as_view(), name="authorbookmixin"),
     path('authors-tree/', AuthorBookTreeView.as_view(), name='author-book-tree'),
-    path('authors-tree/json/', author_book_tree_json, name='author-book-tree-json'),
+    # path('authors-tree/json/', author_book_tree_json, name='author-book-tree-json'),
 ]
