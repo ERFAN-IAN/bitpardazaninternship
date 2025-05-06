@@ -28,6 +28,8 @@ from .models import Book
 
 
 class AuthorBooksTable(tables.Table):
+    edit = tables.LinkColumn("edit_book", kwargs={"pk": tables.A("pk")}, empty_values=())
+    delete = tables.LinkColumn("delete_book", kwargs={"pk": tables.A("pk")}, empty_values=())
     class Meta:
         model = Book
         fields = ("title", "publication_year")
@@ -40,6 +42,11 @@ class AuthorBooksTable(tables.Table):
             return jalali_date.strftime('%Y')
         except Exception:
             return "-"
+
+    def render_edit(self, value):
+        return "Edit"
+    def render_delete(self, value):
+        return "Delete"
 
 
 class AuthorBookCountTable(tables.Table):

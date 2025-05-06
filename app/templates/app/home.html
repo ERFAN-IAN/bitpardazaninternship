@@ -57,9 +57,12 @@
 
         {% endif %}
         {% if user.is_authenticated %}
-            <a href={% url "logout" %}>logout</a>
-            <a href={% url "index" %}>user index</a>
+          <form action="{% url 'logout' %}" method="post" style="display:inline;">
+            {% csrf_token %}
+            <button type="submit">Logout</button>
+          </form>
         {% endif %}
+            <a href={% url "index" %}>user index</a>
         <a href={% url "authorbookcount" %}>Author's book count</a>
         <a href={% url "authorbookmixin" %}>Author Book Mixin</a>
         <a href={% url "author-book-tree" %}>Tree View</a>

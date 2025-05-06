@@ -8,8 +8,7 @@ from django.views.generic import (
     TemplateView
 )
 from django.views.generic.detail import SingleObjectMixin
-# from braces.views import SuperuserRequiredMixin
-from braces.views import GroupRequiredMixin
+from braces.views import SuperuserRequiredMixin
 from django.urls import reverse_lazy, reverse
 from .models import Author, Book
 from django.db.models import Q, Count
@@ -24,9 +23,9 @@ import json
 from django.contrib.auth.mixins import LoginRequiredMixin
 from django.contrib.auth.models import User
 from django.contrib.auth.views import LoginView, LogoutView
-# from django.contrib.auth.decorators import user_passes_test
+from django.contrib.auth.decorators import user_passes_test
 from .models import BookCategory
-# from django.utils.decorators import method_decorator
+from django.utils.decorators import method_decorator
 from chartjs.views.pie import HighChartPieView
 from django.http import JsonResponse
 from django.db.models import Sum
@@ -59,33 +58,30 @@ class AuthorListView(FilterView, ExportMixin, SingleTableView):
         return Author.objects.all()
 
 
-class AuthorCreateView(GroupRequiredMixin, CreateView):
+class AuthorCreateView(LoginRequiredMixin, CreateView):
     model = Author
     fields = ["first_name", "last_name", "age", "national_id"]
 
     template_name = "app/add_author_form.html"
-    group_required = ['Operator', 'Moderator', 'Admin']
 
     def get_success_url(self):
         return reverse("author_detail", kwargs={"pk": self.object.id})
 
 
-class AuthorUpdateView(GroupRequiredMixin, UpdateView):
+class AuthorUpdateView(LoginRequiredMixin, UpdateView):
     model = Author
     fields = ["first_name", "last_name", "age", "national_id"]
     context_object_name = "author"
     template_name = "app/edit_author_form.html"
-    group_required = ['Operator', 'Moderator', 'Admin']
 
     def get_success_url(self):
         return reverse("author_detail", kwargs={"pk": self.object.id})
 
 
-class AuthorDeleteView(GroupRequiredMixin, DeleteView):
+class AuthorDeleteView(LoginRequiredMixin, DeleteView):
     model = Author
     template_name = "app/delete_author.html"
     success_url = reverse_lazy("home")
-    group_required = ['Admin']
 
 
 class AuthorDetailView(DetailView):
@@ -104,11 +100,10 @@ class AuthorDetailView(DetailView):
         return context
 
 
-class BookCreateView(GroupRequiredMixin, CreateView):
+class BookCreateView(LoginRequiredMixin, CreateView):
     model = Book
     fields = ["title", "publication_year"]
     template_name = "app/add_book_form.html"
-    group_required = ['Operator', 'Moderator', 'Admin']
 
     def form_valid(self, form):
         form.instance.author = get_object_or_404(Author, id=self.kwargs["pk"])
@@ -118,21 +113,19 @@ class BookCreateView(GroupRequiredMixin, CreateView):
         return reverse("author_detail", kwargs={"pk": self.kwargs["pk"]})
 
 
-class BookUpdateView(GroupRequiredMixin, UpdateView):
+class BookUpdateView(LoginRequiredMixin, UpdateView):
     model = Book
     fields = ["title", "publication_year", "author"]
     template_name = "app/edit_book_form.html"
-    group_required = ['Operator', 'Moderator', 'Admin']
 
     def get_success_url(self):
         return reverse("author_detail", kwargs={"pk": self.object.author.id})
 
 
-class BookDeleteView(GroupRequiredMixin, DeleteView):
+class BookDeleteView(LoginRequiredMixin, DeleteView):
     model = Book
     template_name = "app/delete_book.html"
     context_object_name = "book"
-    group_required = ['Admin']
 
     def get_success_url(self):
         return reverse("author_detail", kwargs={"pk": self.object.author.id})
@@ -241,6 +234,7 @@ class AuthorBookPieView(TemplateView):
 
 class IndexView(LoginRequiredMixin, TemplateView):
     template_name = 'app/index.html'
+
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
         context['username'] = self.request.user.username
@@ -257,17 +251,9 @@ class CustomLoginView(LoginView):
             return redirect('index')
         return super().dispatch(request, *args, **kwargs)
 
-    # def dispatch(self, request, *args, **kwargs):
-    #     # Check if the user is already logged in
-    #     if request.user.is_authenticated:
-    #         # Redirect to a different page (e.g., homepage or user dashboard)
-    #         return redirect(self.next_page)
-    #     # If the user is not authenticated, proceed with the normal login view
-    #     return super().dispatch(request, *args, **kwargs)
-
 
 class CustomLogoutView(LoginRequiredMixin, LogoutView):
-    next_page = '/'  # or 'login' or wherever you want
+    next_page = '/'  # for logged-in users, otherwise they get redirected to django panel
 
     def dispatch(self, request, *args, **kwargs):
         # for logged-out users, otherwise they get redirected to /login/?next=/logout/
@@ -276,32 +262,32 @@ class CustomLogoutView(LoginRequiredMixin, LogoutView):
         return super().dispatch(request, *args, **kwargs)
 
 
+def is_superuser(user):
+    return user.is_superuser
+
+
 class BookCategoryListView(ListView):
     model = BookCategory
     template_name = 'app/bookcategory_list.html'
 
 
-# @method_decorator(user_passes_test(is_superuser, login_url='/login/'), name='dispatch')
-class BookCategoryCreateView(GroupRequiredMixin, CreateView):
+class BookCategoryCreateView(SuperuserRequiredMixin, CreateView):
     model = BookCategory
     template_name = 'app/bookcategory_form.html'
     fields = ['title']
     success_url = reverse_lazy('bookcategory_list')
-    group_required = ['Moderator', 'Admin']
 
 
-# @method_decorator(user_passes_test(is_superuser, login_url='/login/'), name='dispatch')
-class BookCategoryUpdateView(GroupRequiredMixin, UpdateView):
+@method_decorator(user_passes_test(is_superuser, login_url='/login/'), name='dispatch')
+class BookCategoryUpdateView(LoginRequiredMixin, UpdateView):
     model = BookCategory
     template_name = 'app/bookcategory_confirm_edit.html'
     fields = ['title']
     success_url = reverse_lazy('bookcategory_list')
-    group_required = ['Moderator', 'Admin']
 
 
-# @method_decorator(user_passes_test(is_superuser, login_url='/login/'), name='dispatch')
-class BookCategoryDeleteView(GroupRequiredMixin, DeleteView):
+@method_decorator(user_passes_test(is_superuser, login_url='/login/'), name='dispatch')
+class BookCategoryDeleteView(LoginRequiredMixin, DeleteView):
     model = BookCategory
     template_name = 'app/bookcategory_confirm_delete.html'
     success_url = reverse_lazy('bookcategory_list')
-    group_required = ['Admin']
