@@ -1,7 +1,11 @@
-{% extends "base.html" %} {% block title %}authors{% endblock title %}
+{% extends "base.html" %}
+{% load icons %}
+
+{% block title %}authors{% endblock title %}
 {% load render_table from django_tables2 %}
 {% block content %}
 <section>
+
   <form method="get" action="" class="flexcenter">
     <input
       type="text"
@@ -48,5 +52,6 @@
         <a href={% url "authorbookmixin" %}>Author Book Mixin</a>
         <a href={% url "author-book-tree" %}>Author Book Mixin</a>
     </section>
+
     </section>
 {% endblock content %}

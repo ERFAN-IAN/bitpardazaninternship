@@ -3,7 +3,7 @@ from .models import Author, Book
 from django.db.models import Count
 from django.urls import reverse
 import datetime
-
+from django.utils.safestring import mark_safe
 class AuthorTable(tables.Table):
     full_name = tables.Column(empty_values=(), verbose_name="full name")
     detail = tables.LinkColumn("author_detail", kwargs={"pk": tables.A("pk")}, empty_values=())
@@ -16,7 +16,10 @@ class AuthorTable(tables.Table):
     def render_detail(self, record):
         return 'Details'
     def render_full_name(self, record):
-        return f'{record.first_name} {record.last_name}'
+        icon = '<i class="fa fa-child"></i>' if int(record.age) >=19 else '<i class="fa fa-baby"></i>'
+        if int(record.age)>=41:
+            icon = '<i class="fa fa-user-injured"></i>'
+        return mark_safe(f'{record.first_name} {record.last_name} {icon}')
 
 
 import django_tables2 as tables

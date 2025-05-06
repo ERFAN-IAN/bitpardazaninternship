@@ -39,7 +39,8 @@ DJANGO_APPS = [
     'chartjs',
     'slick_reporting',
     "crispy_forms",
-    "crispy_bootstrap4"
+    "crispy_bootstrap4",
+    'django_icons',
 
 
 ]
