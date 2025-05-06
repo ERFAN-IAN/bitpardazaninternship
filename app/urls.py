@@ -13,8 +13,12 @@ from .views import (
     AuthorBookMixinView,
     AuthorBookTreeView,
     AuthorBookPieView,
+    IndexView,
+    CustomLoginView,
+    CustomLogoutView
     # AuthorSlickView
 )
+
 
 # author_book_tree_json,
 urlpatterns = [
@@ -32,4 +36,7 @@ urlpatterns = [
     # path('authors-tree/json/', author_book_tree_json, name='author-book-tree-json'),
     path('standalone_pie/', AuthorBookPieView.as_view(), name='standalone_pie'),
     # path('authorslick', AuthorSlickView.as_view(), name='authorslick'),
+    path('login/', CustomLoginView.as_view(), name='login'),
+    path('logout/', CustomLogoutView.as_view(), name='logout'),
+    path('index', IndexView.as_view(), name='index'),
 ]

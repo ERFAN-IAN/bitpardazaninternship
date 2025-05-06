@@ -19,11 +19,16 @@ from django_filters.views import FilterView
 from django_tables2.views import MultiTableMixin
 from .filters import AuthorFilter
 import json
+from django.contrib.auth.mixins import LoginRequiredMixin
+from django.contrib.auth.models import User
+from django.contrib.auth.views import LoginView, LogoutView
 from chartjs.views.pie import HighChartPieView
 from django.http import JsonResponse
 from django.db.models import Sum
 from slick_reporting.views import ReportView, Chart
 from slick_reporting.fields import ComputationField
+
+
 # from .reports import AuthorBookReport
 
 
@@ -221,3 +226,31 @@ class AuthorBookPieView(TemplateView):
 #         context = super().get_context_data(**kwargs)
 #         context['form'] = None
 #         return context
+
+
+class IndexView(LoginRequiredMixin, TemplateView):
+    template_name = 'app/index.html'
+
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data(**kwargs)
+        context['username'] = self.request.user.username
+        context['user_list'] = User.objects.all()
+        return context
+
+
+class CustomLoginView(LoginView):
+    template_name = 'app/login.html'
+    next_page = 'index'
+
+    def dispatch(self, request, *args, **kwargs):
+        if request.user.is_authenticated:
+            return redirect('index')
+        return super().dispatch(request, *args, **kwargs)
+
+
+class CustomLogoutView(LoginRequiredMixin, LogoutView):
+
+    def dispatch(self, request, *args, **kwargs):
+        if not request.user.is_authenticated:
+            return redirect('login')
+        return super().dispatch(request, *args, **kwargs)

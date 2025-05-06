@@ -48,9 +48,11 @@
         {% else %}
             <a href="{{ request.get_full_path }}&_export=csv">Download the table</a>
         {% endif %}
+        <a href="{% url 'login' %}">login</a>
         <a href={% url "authorbookcount" %}>Author's book count</a>
         <a href={% url "authorbookmixin" %}>Author Book Mixin</a>
-        <a href={% url "author-book-tree" %}>Author Book Mixin</a>
+        <a href={% url "author-book-tree" %}>Tree View</a>
+        <a href={% url "index" %}>user index</a>
     </section>
 
     </section>
