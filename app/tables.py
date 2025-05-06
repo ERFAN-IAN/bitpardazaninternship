@@ -5,6 +5,7 @@ from django.urls import reverse
 import datetime
 
 class AuthorTable(tables.Table):
+    full_name = tables.Column(empty_values=(), verbose_name="full name")
     detail = tables.LinkColumn("author_detail", kwargs={"pk": tables.A("pk")}, empty_values=())
 
     class Meta:
@@ -14,6 +15,8 @@ class AuthorTable(tables.Table):
 
     def render_detail(self, record):
         return 'Details'
+    def render_full_name(self, record):
+        return f'{record.first_name} {record.last_name}'
 
 
 import django_tables2 as tables
