@@ -22,6 +22,9 @@ import json
 from django.contrib.auth.mixins import LoginRequiredMixin
 from django.contrib.auth.models import User
 from django.contrib.auth.views import LoginView, LogoutView
+from django.contrib.auth.decorators import user_passes_test
+from .models import BookCategory
+from django.utils.decorators import method_decorator
 from chartjs.views.pie import HighChartPieView
 from django.http import JsonResponse
 from django.db.models import Sum
@@ -256,3 +259,35 @@ class CustomLogoutView(LoginRequiredMixin, LogoutView):
         if not request.user.is_authenticated:
             return redirect('login')
         return super().dispatch(request, *args, **kwargs)
+
+
+def is_superuser(user):
+    return user.is_superuser
+
+
+class BookCategoryListView(ListView):
+    model = BookCategory
+    template_name = 'app/bookcategory_list.html'
+
+
+@method_decorator(user_passes_test(is_superuser, login_url='/login/'), name='dispatch')
+class BookCategoryCreateView(LoginRequiredMixin, CreateView):
+    model = BookCategory
+    template_name = 'app/bookcategory_form.html'
+    fields = ['title']
+    success_url = reverse_lazy('bookcategory_list')
+
+
+@method_decorator(user_passes_test(is_superuser, login_url='/login/'), name='dispatch')
+class BookCategoryUpdateView(LoginRequiredMixin, UpdateView):
+    model = BookCategory
+    template_name = 'app/bookcategory_confirm_edit.html'
+    fields = ['title']
+    success_url = reverse_lazy('bookcategory_list')
+
+
+@method_decorator(user_passes_test(is_superuser, login_url='/login/'), name='dispatch')
+class BookCategoryDeleteView(LoginRequiredMixin, DeleteView):
+    model = BookCategory
+    template_name = 'app/bookcategory_confirm_delete.html'
+    success_url = reverse_lazy('bookcategory_list')

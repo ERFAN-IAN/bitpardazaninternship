@@ -1,0 +1,15 @@
+<h2>Categories</h2>
+<ul>
+    {% for category in object_list %}
+        <div style="display: flex; gap: 2rem">
+            <li>{{ category.title }}</li>
+            <a href="{% url 'bookcategory_delete' category.pk  %}">Remove Category</a>
+            <a href="{% url 'bookcategory_edit' category.pk  %}">Edit Category</a>
+        </div>
+
+    {% endfor %}
+</ul>
+
+<a href="{% url 'bookcategory_create' %}">Add Category</a>
+
+<a href="{% url 'home' %}">Home</a>

@@ -1,0 +1,8 @@
+<h2>Are you sure you want to edit {{ object.title }} category?</h2>
+<form method="post">
+    {% csrf_token %}
+    <label for="edit_id">new label</label>
+    <input type="text" id="edit_id">
+    <button type="submit">Yes, edit</button>
+</form>
+<a href="{% url 'bookcategory_list' %}">Cancel</a>

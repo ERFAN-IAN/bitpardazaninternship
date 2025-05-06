@@ -15,7 +15,11 @@ from .views import (
     AuthorBookPieView,
     IndexView,
     CustomLoginView,
-    CustomLogoutView
+    CustomLogoutView,
+    BookCategoryListView,
+    BookCategoryCreateView,
+    BookCategoryUpdateView,
+    BookCategoryDeleteView,
     # AuthorSlickView
 )
 
@@ -39,4 +43,8 @@ urlpatterns = [
     path('login/', CustomLoginView.as_view(), name='login'),
     path('logout/', CustomLogoutView.as_view(), name='logout'),
     path('index', IndexView.as_view(), name='index'),
+    path('categories/', BookCategoryListView.as_view(), name='bookcategory_list'),
+    path('categories/add/', BookCategoryCreateView.as_view(), name='bookcategory_create'),
+    path('categories/edit/<int:pk>/', BookCategoryUpdateView.as_view(), name='bookcategory_edit'),
+    path('categories/delete/<int:pk>/', BookCategoryDeleteView.as_view(), name='bookcategory_delete'),
 ]

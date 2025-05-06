@@ -23,12 +23,20 @@ class Author(models.Model):
         return f"{self.first_name} {self.last_name}"
 
 
+class BookCategory(models.Model):
+    title = models.CharField(max_length=100)
+
+    def __str__(self):
+        return self.title
+
+
 class Book(models.Model):
     title = models.CharField(max_length=200)
     publication_year = models.PositiveIntegerField(
         validators=[validate_publication_year]
     )
     author = models.ForeignKey(Author, on_delete=models.CASCADE, related_name="books")
+    category = models.ForeignKey(BookCategory, on_delete=models.PROTECT, related_name='category')
 
     def __str__(self):
         return self.title
