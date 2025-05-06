@@ -54,7 +54,7 @@ class AuthorListView(FilterView, ExportMixin, SingleTableView):
         return Author.objects.all()
 
 
-class AuthorCreateView(CreateView):
+class AuthorCreateView(LoginRequiredMixin, CreateView):
     model = Author
     fields = ["first_name", "last_name", "age", "national_id"]
 
@@ -64,7 +64,7 @@ class AuthorCreateView(CreateView):
         return reverse("author_detail", kwargs={"pk": self.object.id})
 
 
-class AuthorUpdateView(UpdateView):
+class AuthorUpdateView(LoginRequiredMixin, UpdateView):
     model = Author
     fields = ["first_name", "last_name", "age", "national_id"]
     context_object_name = "author"
@@ -74,7 +74,7 @@ class AuthorUpdateView(UpdateView):
         return reverse("author_detail", kwargs={"pk": self.object.id})
 
 
-class AuthorDeleteView(DeleteView):
+class AuthorDeleteView(LoginRequiredMixin, DeleteView):
     model = Author
     template_name = "app/delete_author.html"
     success_url = reverse_lazy("home")
@@ -96,7 +96,7 @@ class AuthorDetailView(DetailView):
         return context
 
 
-class BookCreateView(CreateView):
+class BookCreateView(LoginRequiredMixin, CreateView):
     model = Book
     fields = ["title", "publication_year"]
     template_name = "app/add_book_form.html"
@@ -109,7 +109,7 @@ class BookCreateView(CreateView):
         return reverse("author_detail", kwargs={"pk": self.kwargs["pk"]})
 
 
-class BookUpdateView(UpdateView):
+class BookUpdateView(LoginRequiredMixin, UpdateView):
     model = Book
     fields = ["title", "publication_year", "author"]
     template_name = "app/edit_book_form.html"
@@ -118,7 +118,7 @@ class BookUpdateView(UpdateView):
         return reverse("author_detail", kwargs={"pk": self.object.author.id})
 
 
-class BookDeleteView(DeleteView):
+class BookDeleteView(LoginRequiredMixin, DeleteView):
     model = Book
     template_name = "app/delete_book.html"
     context_object_name = "book"
@@ -249,8 +249,10 @@ class CustomLoginView(LoginView):
 
 
 class CustomLogoutView(LoginRequiredMixin, LogoutView):
+    next_page = '/'  # for logged-in users, otherwise they get redirected to django panel
 
     def dispatch(self, request, *args, **kwargs):
+        # for logged-out users, otherwise they get redirected to /login/?next=/logout/
         if not request.user.is_authenticated:
             return redirect('login')
         return super().dispatch(request, *args, **kwargs)
