@@ -8,6 +8,7 @@ from django.views.generic import (
     TemplateView
 )
 from django.views.generic.detail import SingleObjectMixin
+from braces.views import SuperuserRequiredMixin
 from django.urls import reverse_lazy, reverse
 from .models import Author, Book
 from django.db.models import Q, Count
@@ -270,8 +271,7 @@ class BookCategoryListView(ListView):
     template_name = 'app/bookcategory_list.html'
 
 
-@method_decorator(user_passes_test(is_superuser, login_url='/login/'), name='dispatch')
-class BookCategoryCreateView(LoginRequiredMixin, CreateView):
+class BookCategoryCreateView(SuperuserRequiredMixin, CreateView):
     model = BookCategory
     template_name = 'app/bookcategory_form.html'
     fields = ['title']
