@@ -7,11 +7,12 @@ from django.views.generic import (
     DetailView,
     TemplateView
 )
+from .forms import UserSignupForm
 from django.views.generic.detail import SingleObjectMixin
 # from braces.views import SuperuserRequiredMixin
 from braces.views import GroupRequiredMixin
 from django.urls import reverse_lazy, reverse
-from .models import Author, Book
+from .models import Author, Book, BookCategory, UserProfile
 from django.db.models import Q, Count
 from django.shortcuts import get_object_or_404, redirect
 from django_tables2 import SingleTableView
@@ -25,13 +26,13 @@ from django.contrib.auth.mixins import LoginRequiredMixin
 from django.contrib.auth.models import User
 from django.contrib.auth.views import LoginView, LogoutView
 # from django.contrib.auth.decorators import user_passes_test
-from .models import BookCategory
 # from django.utils.decorators import method_decorator
 from chartjs.views.pie import HighChartPieView
 from django.http import JsonResponse
 from django.db.models import Sum
 from slick_reporting.views import ReportView, Chart
 from slick_reporting.fields import ComputationField
+from django.contrib.auth.models import Group
 
 
 # from .reports import AuthorBookReport
@@ -241,6 +242,7 @@ class AuthorBookPieView(TemplateView):
 
 class IndexView(LoginRequiredMixin, TemplateView):
     template_name = 'app/index.html'
+
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
         context['username'] = self.request.user.username
@@ -305,3 +307,27 @@ class BookCategoryDeleteView(GroupRequiredMixin, DeleteView):
     template_name = 'app/bookcategory_confirm_delete.html'
     success_url = reverse_lazy('bookcategory_list')
     group_required = ['Admin']
+
+
+class SignUpCreateView(CreateView):
+    model = User
+    template_name = 'app/signupform.html'
+    form_class = UserSignupForm
+    success_url = '/login'
+
+    def form_valid(self, form):
+        response = super().form_valid(form)
+        user = self.object
+        father_name = form.cleaned_data.get('father_name')
+        profile, created = UserProfile.objects.get_or_create(user=user)
+        profile.father_name = father_name
+        profile.save()
+        operate_group, created = Group.objects.get_or_create(name='Operator')
+        user.groups.add(operate_group)
+
+        return response
+
+    def dispatch(self, request, *args, **kwargs):
+        if request.user.is_authenticated:
+            return redirect('/')
+        return super().dispatch(request, *args, **kwargs)

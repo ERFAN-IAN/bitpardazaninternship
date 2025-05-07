@@ -20,6 +20,7 @@ from .views import (
     BookCategoryCreateView,
     BookCategoryUpdateView,
     BookCategoryDeleteView,
+    SignUpCreateView,
     # AuthorSlickView
 )
 
@@ -47,4 +48,5 @@ urlpatterns = [
     path('categories/add/', BookCategoryCreateView.as_view(), name='bookcategory_create'),
     path('categories/edit/<int:pk>/', BookCategoryUpdateView.as_view(), name='bookcategory_edit'),
     path('categories/delete/<int:pk>/', BookCategoryDeleteView.as_view(), name='bookcategory_delete'),
+    path('signup', SignUpCreateView.as_view(), name='signup'),
 ]

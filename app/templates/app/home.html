@@ -67,6 +67,9 @@
         <a href={% url "authorbookmixin" %}>Author Book Mixin</a>
         <a href={% url "author-book-tree" %}>Tree View</a>
         <a href={% url "bookcategory_list" %}>bookcategory list</a>
+        {% if not user.is_authenticated %}
+            <a href="{% url 'signup' %}">Sign Up</a>
+        {% endif %}
     </section>
 
     </section>
