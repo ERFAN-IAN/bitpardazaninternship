@@ -1,5 +1,8 @@
+{% load group_tags %}
 <form method="post" action="">
   {% csrf_token %} {{form}}
   <button type="submit">Submit</button>
-  <button><a href="{% url 'delete_author' author.id %}">Delete</a></button>
+    {% if user|has_group:"Admin" or user.is_superuser %}
+        <button><a href="{% url 'delete_author' author.id %}">Delete</a></button>
+    {% endif %}
 </form>

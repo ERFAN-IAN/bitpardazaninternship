@@ -2,6 +2,7 @@ from django.db import models
 from django.core.exceptions import ValidationError
 from django.utils import timezone
 from django.core.validators import MaxValueValidator
+from django.contrib.auth.models import User
 
 
 # Create your models here.
@@ -40,3 +41,11 @@ class Book(models.Model):
 
     def __str__(self):
         return self.title
+
+
+class UserProfile(models.Model):
+    user = models.OneToOneField(User, on_delete=models.CASCADE, related_name='profile')
+    father_name = models.CharField(max_length=150, null=True, blank=True, default=None)
+
+    def __str__(self):
+        return f"Profile of {self.user.username}"
