@@ -6,6 +6,7 @@ from django.db.models import Count
 from django.urls import reverse
 import datetime
 from django.utils.safestring import mark_safe
+from django.conf import settings
 
 
 class AuthorTable(tables.Table):
@@ -36,7 +37,7 @@ class AuthorBooksTable(tables.Table):
 
     class Meta:
         model = Book
-        fields = ("title", "publication_year")
+        fields = ("title", "publication_year", "category", "image")
         attrs = {'class': 'table table-bordered'}
 
     def render_publication_year(self, value):
@@ -52,6 +53,9 @@ class AuthorBooksTable(tables.Table):
 
     def render_delete(self, value):
         return "Delete"
+
+    def render_image(self, value):
+        return mark_safe(f'<img src="{settings.MEDIA_URL}{value}" style="width:200px; height:auto;">')
 
     def before_render(self, request):
         user_groups = request.user.groups.values_list('name', flat=True)

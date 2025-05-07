@@ -5,11 +5,7 @@
 {% load render_table from django_tables2 %}
 {% block content %}
 <section>
-    {% if user.is_authenticated %}
-        <div class="flexend">
-            <a href="{% url 'add_author' %}">Add author</a>
-        </div>
-    {% endif %}
+
 
   <form method="get" action="" class="flexcenter">
     <input
@@ -50,6 +46,11 @@
             <a href="/?_export=csv">Download the table</a>
         {% else %}
             <a href="{{ request.get_full_path }}&_export=csv">Download the table</a>
+        {% endif %}
+        {% if user.is_authenticated %}
+            <div class="">
+                <a href="{% url 'add_author' %}">Add author</a>
+            </div>
         {% endif %}
         {% if not user.is_authenticated %}
 

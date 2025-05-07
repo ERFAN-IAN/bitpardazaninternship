@@ -1,4 +1,3 @@
-from django.shortcuts import render
 from django.views.generic import (
     ListView,
     CreateView,
@@ -8,8 +7,6 @@ from django.views.generic import (
     TemplateView
 )
 from .forms import UserSignupForm
-from django.views.generic.detail import SingleObjectMixin
-# from braces.views import SuperuserRequiredMixin
 from braces.views import GroupRequiredMixin
 from django.urls import reverse_lazy, reverse
 from .models import Author, Book, BookCategory, UserProfile
@@ -23,20 +20,19 @@ from django_tables2.views import MultiTableMixin
 from .filters import AuthorFilter
 import json
 from django.contrib.auth.mixins import LoginRequiredMixin
-from django.contrib.auth.models import User
+from django.contrib.auth.models import User, Group
 from django.contrib.auth.views import LoginView, LogoutView
+# from django.views.generic.detail import SingleObjectMixin
+# from braces.views import SuperuserRequiredMixin
 # from django.contrib.auth.decorators import user_passes_test
 # from django.utils.decorators import method_decorator
-from chartjs.views.pie import HighChartPieView
-from django.http import JsonResponse
-from django.db.models import Sum
-from slick_reporting.views import ReportView, Chart
-from slick_reporting.fields import ComputationField
-from django.contrib.auth.models import Group
-
-
+# from chartjs.views.pie import HighChartPieView
+# from django.http import JsonResponse
+# from django.db.models import Sum
+# from slick_reporting.views import ReportView, Chart
+# from slick_reporting.fields import ComputationField
 # from .reports import AuthorBookReport
-
+# from django.shortcuts import render
 
 # Create your views here.
 
@@ -107,7 +103,7 @@ class AuthorDetailView(DetailView):
 
 class BookCreateView(GroupRequiredMixin, CreateView):
     model = Book
-    fields = ["title", "publication_year"]
+    fields = ["title", "publication_year", "image", "category"]
     template_name = "app/add_book_form.html"
     group_required = ['Operator', 'Moderator', 'Admin']
 
@@ -121,7 +117,7 @@ class BookCreateView(GroupRequiredMixin, CreateView):
 
 class BookUpdateView(GroupRequiredMixin, UpdateView):
     model = Book
-    fields = ["title", "publication_year", "author"]
+    fields = ["title", "publication_year", "author", "category", "image"]
     template_name = "app/edit_book_form.html"
     group_required = ['Operator', 'Moderator', 'Admin']
 

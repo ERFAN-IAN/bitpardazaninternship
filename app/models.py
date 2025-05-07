@@ -38,6 +38,7 @@ class Book(models.Model):
     )
     author = models.ForeignKey(Author, on_delete=models.CASCADE, related_name="books")
     category = models.ForeignKey(BookCategory, on_delete=models.PROTECT, related_name='category')
+    image = models.ImageField(upload_to="books/", null=True, blank=True)
 
     def __str__(self):
         return self.title
