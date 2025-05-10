@@ -37,7 +37,7 @@ class AuthorBooksTable(tables.Table):
 
     class Meta:
         model = Book
-        fields = ("title", "publication_year", "category", "image")
+        fields = ("title", "publication_year", "category", "image", "release_date")
         attrs = {'class': 'table table-bordered'}
 
     def render_publication_year(self, value):
@@ -56,6 +56,13 @@ class AuthorBooksTable(tables.Table):
 
     def render_image(self, value):
         return mark_safe(f'<img src="{settings.MEDIA_URL}{value}" style="width:200px; height:auto;">')
+
+    def render_release_date(self, record):
+        if record.release_date:
+            iso_date = record.release_date.isoformat()
+            # Render a span with a data attribute containing the ISO date
+            return mark_safe(f'<span class="release-date" data-release-date="{iso_date}"></span>')
+        return ''
 
     def before_render(self, request):
         user_groups = request.user.groups.values_list('name', flat=True)

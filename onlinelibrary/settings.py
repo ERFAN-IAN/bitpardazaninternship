@@ -41,6 +41,7 @@ DJANGO_APPS = [
     "crispy_forms",
     "crispy_bootstrap4",
     'django_icons',
+    'django_select2',
 
 
 ]
@@ -118,7 +119,7 @@ AUTH_PASSWORD_VALIDATORS = [
 
 LANGUAGE_CODE = "en-us"
 
-TIME_ZONE = "UTC"
+TIME_ZONE = 'Asia/Tehran'
 
 USE_I18N = True
 

@@ -33,5 +33,52 @@
 {#</ul>#}
 {% render_table book_table %}
 <a href="/">Home</a>
+    <script>
+function updateReleaseDates() {
+    const elements = document.querySelectorAll('.release-date');
+    const now = new Date();
+
+    elements.forEach(el => {
+        const releaseDateStr = el.getAttribute('data-release-date');
+        if (!releaseDateStr) return;
+
+        const releaseDate = new Date(releaseDateStr);
+        const diffMs = now - releaseDate;
+        console.log(now,releaseDate)
+        const diffSeconds = Math.floor(diffMs / 1000);
+        const diffMinutes = Math.floor(diffSeconds / 60);
+        const diffHours = Math.floor(diffMinutes / 60);
+        const diffDays = Math.floor(diffHours / 24);
+        const diffMonths = Math.floor(diffDays / 30);
+        const diffYears = Math.floor(diffDays / 365);
+        console.log(diffYears)
+        let displayText = '';
+
+        if (diffMinutes < 60) {
+            displayText = diffMinutes + ' دقیقه پیش'; // X minutes ago
+        } else if (diffHours < 24) {
+            displayText = diffHours + ' ساعت پیش'; // X hours ago
+        } else if (diffDays < 30) {
+            displayText = diffDays + ' روز پیش'; // X days ago
+        } else if (diffMonths < 12) {
+            displayText = diffMonths + ' ماه پیش'; // X months ago
+        } else {
+            // Format date as "MM-DD-YYYY HH:mm:ss" in Persian locale
+            displayText = releaseDate.toLocaleString('fa-IR', {
+                year: 'numeric', month: '2-digit', day: '2-digit',
+                hour: '2-digit', minute: '2-digit', second: '2-digit'
+            });
+        }
+
+        el.textContent = displayText;
+    });
+}
+
+// Run once on page load
+updateReleaseDates();
+// Update every minute without page refresh
+setInterval(updateReleaseDates, 60 * 1000);
+</script>
+
 {% endblock %}
 

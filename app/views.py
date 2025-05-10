@@ -6,7 +6,7 @@ from django.views.generic import (
     DetailView,
     TemplateView
 )
-from .forms import UserSignupForm
+from .forms import UserSignupForm, BookForm, BookFormSingleNoAjax
 from braces.views import GroupRequiredMixin
 from django.urls import reverse_lazy, reverse
 from .models import Author, Book, BookCategory, UserProfile
@@ -22,6 +22,7 @@ import json
 from django.contrib.auth.mixins import LoginRequiredMixin
 from django.contrib.auth.models import User, Group
 from django.contrib.auth.views import LoginView, LogoutView
+
 # from django.views.generic.detail import SingleObjectMixin
 # from braces.views import SuperuserRequiredMixin
 # from django.contrib.auth.decorators import user_passes_test
@@ -103,9 +104,10 @@ class AuthorDetailView(DetailView):
 
 class BookCreateView(GroupRequiredMixin, CreateView):
     model = Book
-    fields = ["title", "publication_year", "image", "category"]
+    # fields = ["title", "release_date", "image", "category"]
     template_name = "app/add_book_form.html"
     group_required = ['Operator', 'Moderator', 'Admin']
+    form_class = BookFormSingleNoAjax
 
     def form_valid(self, form):
         form.instance.author = get_object_or_404(Author, id=self.kwargs["pk"])
@@ -117,9 +119,10 @@ class BookCreateView(GroupRequiredMixin, CreateView):
 
 class BookUpdateView(GroupRequiredMixin, UpdateView):
     model = Book
-    fields = ["title", "publication_year", "author", "category", "image"]
+    # fields = ["title", "release_date", "author", "category", "image"]
     template_name = "app/edit_book_form.html"
     group_required = ['Operator', 'Moderator', 'Admin']
+    form_class = BookFormSingleNoAjax
 
     def get_success_url(self):
         return reverse("author_detail", kwargs={"pk": self.object.author.id})
