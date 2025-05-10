@@ -1,0 +1,11 @@
+
+<script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+<h1>hey</h1>
+        <form method="get">
+            {{ filter.form }}
+            {{ filter.form.media }}
+            <button type="submit">Filter</button>
+        </form>
+{% for item in object_list %}
+    {{ item }}
+{% endfor %}

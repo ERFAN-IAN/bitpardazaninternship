@@ -2,9 +2,8 @@ from django import forms
 from django.contrib.auth.forms import UserCreationForm
 from django.contrib.auth.models import User
 from django_select2.forms import Select2Widget
-from .models import Book
-import pytz
-from django.utils.timezone import is_naive
+from .models import Book, BookCategory
+from django_select2.forms import ModelSelect2Widget
 
 
 class UserSignupForm(UserCreationForm):
@@ -13,11 +12,6 @@ class UserSignupForm(UserCreationForm):
     class Meta:
         model = User
         fields = ['username', 'father_name', 'password1', 'password2']
-
-
-# class CategoryAjaxWidget(ModelSelect2Widget):
-#     model = BookCategory
-#     search_fields = ['title__icontains']
 
 
 class BookForm(forms.ModelForm):
@@ -41,5 +35,22 @@ class BookFormSingleNoAjax(forms.ModelForm):
         model = Book
         fields = ["title", "release_date", "author", "category", "image"]
         widgets = {
-            'category': Select2Widget(attrs={'style': 'width: 100%;'}),
+            'category': Select2Widget(),
+        }
+
+
+class CategoryAjaxWidget(ModelSelect2Widget):
+    model = BookCategory
+    search_fields = ['title__icontains']
+
+
+
+class BookFormSingleAjax(forms.ModelForm):
+    class Meta:
+        model = Book
+        fields = ["title", "release_date", "author", "category", "image"]
+        widgets = {
+            'category': CategoryAjaxWidget(
+                attrs={'data-placeholder': 'Select a category', 'style': 'width: 100%;'}
+            ),
         }

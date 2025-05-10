@@ -6,7 +6,7 @@ from django.views.generic import (
     DetailView,
     TemplateView
 )
-from .forms import UserSignupForm, BookForm, BookFormSingleNoAjax
+from .forms import UserSignupForm, BookForm, BookFormSingleNoAjax, BookFormSingleAjax
 from braces.views import GroupRequiredMixin
 from django.urls import reverse_lazy, reverse
 from .models import Author, Book, BookCategory, UserProfile
@@ -17,7 +17,7 @@ from .tables import AuthorBooksTable, AuthorTable, AuthorBookCountTable
 from django_tables2.export.views import ExportMixin
 from django_filters.views import FilterView
 from django_tables2.views import MultiTableMixin
-from .filters import AuthorFilter
+from .filters import AuthorFilter, BookFilter
 import json
 from django.contrib.auth.mixins import LoginRequiredMixin
 from django.contrib.auth.models import User, Group
@@ -107,7 +107,7 @@ class BookCreateView(GroupRequiredMixin, CreateView):
     # fields = ["title", "release_date", "image", "category"]
     template_name = "app/add_book_form.html"
     group_required = ['Operator', 'Moderator', 'Admin']
-    form_class = BookFormSingleNoAjax
+    form_class = BookFormSingleAjax
 
     def form_valid(self, form):
         form.instance.author = get_object_or_404(Author, id=self.kwargs["pk"])
@@ -330,3 +330,9 @@ class SignUpCreateView(CreateView):
         if request.user.is_authenticated:
             return redirect('/')
         return super().dispatch(request, *args, **kwargs)
+
+
+class BooksListView(FilterView, ListView):
+    model = Book
+    template_name = 'app/booklist.html'
+    filterset_class = BookFilter

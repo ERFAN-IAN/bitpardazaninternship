@@ -21,6 +21,7 @@ from .views import (
     BookCategoryUpdateView,
     BookCategoryDeleteView,
     SignUpCreateView,
+    BooksListView
     # AuthorSlickView
 )
 
@@ -49,4 +50,6 @@ urlpatterns = [
     path('categories/edit/<int:pk>/', BookCategoryUpdateView.as_view(), name='bookcategory_edit'),
     path('categories/delete/<int:pk>/', BookCategoryDeleteView.as_view(), name='bookcategory_delete'),
     path('signup', SignUpCreateView.as_view(), name='signup'),
+    path('select2/', include('django_select2.urls')),
+    path('booklist/', BooksListView.as_view(), name='booklist' ),
 ]
