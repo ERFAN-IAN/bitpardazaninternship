@@ -1,0 +1,50 @@
+{% load static %}
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Form with django-select2</title>
+
+    <!-- Load jQuery from CDN -->
+    <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+    <script>
+$(document).ready(function() {
+    var $parent = $('#id_author');  // Replace with your parent field's ID
+    var $child = $('#id_book');      // Replace with your dependent field's ID
+
+    function toggleChild() {
+        if ($parent.val()) {
+            $child.prop('disabled', false);
+        } else {
+            $child.val(null).trigger('change'); // Clear selection
+            $child.prop('disabled', true);
+        }
+    }
+
+    // Initial check on page load
+    toggleChild();
+
+    // Enable/disable child when parent changes
+    $parent.on('change', function() {
+        toggleChild();
+    });
+});
+
+
+
+
+    </script>
+    <!-- Load django-select2 CSS and JS -->
+    {{ form.media }}
+</head>
+<body>
+
+<h1>Hey</h1>
+
+<form method="POST">
+    {% csrf_token %}
+    {{ form }}
+    <button type="submit">Submit</button>
+</form>
+
+</body>
+</html>

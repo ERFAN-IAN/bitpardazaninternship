@@ -4,9 +4,10 @@ from django.views.generic import (
     UpdateView,
     DeleteView,
     DetailView,
-    TemplateView
+    TemplateView,
+    FormView
 )
-from .forms import UserSignupForm, BookForm, BookFormSingleNoAjax, BookFormSingleAjax
+from .forms import UserSignupForm, BookForm, BookFormSingleNoAjax, BookFormSingleAjax, BookSelectForm
 from braces.views import GroupRequiredMixin
 from django.urls import reverse_lazy, reverse
 from .models import Author, Book, BookCategory, UserProfile
@@ -22,6 +23,7 @@ import json
 from django.contrib.auth.mixins import LoginRequiredMixin
 from django.contrib.auth.models import User, Group
 from django.contrib.auth.views import LoginView, LogoutView
+
 
 # from django.views.generic.detail import SingleObjectMixin
 # from braces.views import SuperuserRequiredMixin
@@ -336,3 +338,14 @@ class BooksListView(FilterView, ListView):
     model = Book
     template_name = 'app/booklist.html'
     filterset_class = BookFilter
+
+
+class BookSelectView(FormView):
+    template_name = 'app/bookselect2.html'
+    form_class = BookSelectForm
+
+    def get_success_url(self):
+        book_id = self.request.POST.get('book')
+        return reverse("edit_book", kwargs={"pk": book_id})
+
+
