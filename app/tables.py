@@ -34,10 +34,10 @@ class AuthorTable(tables.Table):
 class AuthorBooksTable(tables.Table):
     edit = tables.LinkColumn("edit_book", kwargs={"pk": tables.A("pk")}, empty_values=())
     delete = tables.LinkColumn("delete_book", kwargs={"pk": tables.A("pk")}, empty_values=())
-
+    purchase = tables.LinkColumn('purchase_page', kwargs={"pk": tables.A("pk")}, empty_values=())
     class Meta:
         model = Book
-        fields = ("title", "publication_year", "category", "image", "release_date")
+        fields = ("title", "publication_year", "category", "image", "release_date", 'price')
         attrs = {'class': 'table table-bordered'}
 
     def render_publication_year(self, value):
@@ -50,6 +50,9 @@ class AuthorBooksTable(tables.Table):
 
     def render_edit(self, value):
         return "Edit"
+
+    def render_purchase(self, value):
+        return 'Buy!'
 
     def render_delete(self, value):
         return "Delete"

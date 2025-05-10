@@ -3,6 +3,7 @@ from django.core.exceptions import ValidationError
 from django.utils import timezone
 from django.core.validators import MaxValueValidator
 from django.contrib.auth.models import User
+from decimal import Decimal
 
 
 # Create your models here.
@@ -40,11 +41,13 @@ class Book(models.Model):
     category = models.ForeignKey(BookCategory, on_delete=models.PROTECT, related_name='category')
     image = models.ImageField(upload_to="books/", null=True, blank=True)
     release_date = models.DateTimeField()
+    price = models.DecimalField(decimal_places=2, max_digits=12)
 
     def save(self, *args, **kwargs):
         if self.release_date:
             self.publication_year = self.release_date.year
         super().save(*args, **kwargs)
+
     def __str__(self):
         return self.title
 
@@ -52,6 +55,17 @@ class Book(models.Model):
 class UserProfile(models.Model):
     user = models.OneToOneField(User, on_delete=models.CASCADE, related_name='profile')
     father_name = models.CharField(max_length=150, null=True, blank=True, default=None)
+    balance = models.DecimalField(decimal_places=2, default=Decimal('0.00'), max_digits=12)
 
     def __str__(self):
         return f"Profile of {self.user.username}"
+
+
+class Purchase(models.Model):
+    user = models.OneToOneField(User, on_delete=models.PROTECT, related_name='purchase')
+    book = models.ForeignKey(Book, on_delete=models.PROTECT, related_name="purchase")
+    price = models.DecimalField(decimal_places=2, max_digits=12)
+    purchased_at = models.DateTimeField(auto_now_add=True)
+
+    def __str__(self):
+        return f"{self.user.username} bought {self.book.title} for {self.price}"

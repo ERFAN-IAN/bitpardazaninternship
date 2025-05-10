@@ -10,7 +10,7 @@ from django.views.generic import (
 from .forms import UserSignupForm, BookForm, BookFormSingleNoAjax, BookFormSingleAjax, BookSelectForm
 from braces.views import GroupRequiredMixin
 from django.urls import reverse_lazy, reverse
-from .models import Author, Book, BookCategory, UserProfile
+from .models import Author, Book, BookCategory, UserProfile, Purchase
 from django.db.models import Q, Count
 from django.shortcuts import get_object_or_404, redirect
 from django_tables2 import SingleTableView
@@ -24,6 +24,9 @@ from django.contrib.auth.mixins import LoginRequiredMixin
 from django.contrib.auth.models import User, Group
 from django.contrib.auth.views import LoginView, LogoutView
 from django.db import transaction
+from django import forms
+from django.contrib import messages
+
 
 # from django.views.generic.detail import SingleObjectMixin
 # from braces.views import SuperuserRequiredMixin
@@ -368,4 +371,41 @@ class BookSelectView(FormView):
         book_id = self.request.POST.get('book')
         return reverse("edit_book", kwargs={"pk": book_id})
 
+import logging
+class BookPurchaseView(LoginRequiredMixin, FormView):
+    template_name = "app/purchaseconfirmation.html"
+    success_url = '/'
+    form_class = forms.Form
 
+    def dispatch(self, request, *args, **kwargs):
+        self.book = get_object_or_404(Book, pk=kwargs['pk'])
+        return super().dispatch(request, *args, **kwargs)
+
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data(**kwargs)
+        context['book'] = self.book
+        return context
+
+    def form_valid(self, form):
+        user = self.request.user
+        book = self.book
+        logger = logging.getLogger(__name__)
+        try:
+            with transaction.atomic():
+                user = user.__class__.objects.select_for_update().get(pk=user.pk)
+
+                if user.profile.balance < book.price:
+                    messages.error(self.request, "Insufficient balance to buy this book.")
+                    return redirect('/')
+                user.profile.balance -= book.price
+                user.save()
+
+                Purchase.objects.create(user=user, book=book, price=book.price)
+
+                messages.success(self.request, f"You have successfully purchased '{book.title}'.")
+                return super().form_valid(form)
+
+        except Exception as e:
+            logger.error("Purchase error: %s", e, exc_info=True)
+            messages.error(self.request, "An error occurred during purchase. Please try again.")
+            return redirect('/')
