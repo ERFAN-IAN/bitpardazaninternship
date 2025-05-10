@@ -23,7 +23,7 @@ import json
 from django.contrib.auth.mixins import LoginRequiredMixin
 from django.contrib.auth.models import User, Group
 from django.contrib.auth.views import LoginView, LogoutView
-
+from django.db import transaction
 
 # from django.views.generic.detail import SingleObjectMixin
 # from braces.views import SuperuserRequiredMixin
@@ -244,10 +244,30 @@ class AuthorBookPieView(TemplateView):
 class IndexView(LoginRequiredMixin, TemplateView):
     template_name = 'app/index.html'
 
+    # @transaction.atomic
+    # def get_context_data(self, **kwargs):
+    #     # with transaction.atomic():
+    #     #     context = super().get_context_data(**kwargs)
+    #     #     context['username'] = self.request.user.username
+    #     #     context['user_list'] = User.objects.all()
+    #     context = super().get_context_data(**kwargs)
+    #     context['username'] = self.request.user.username
+    #     context['user_list'] = User.objects.all()
+    #
+    #     return context
     def get_context_data(self, **kwargs):
-        context = super().get_context_data(**kwargs)
-        context['username'] = self.request.user.username
-        context['user_list'] = User.objects.all()
+        transaction.set_autocommit(False)
+        try:
+            context = super().get_context_data(**kwargs)
+            context['username'] = self.request.user.username
+            context['user_list'] = User.objects.all()
+            transaction.commit()
+        except NameError:
+            transaction.rollback()
+            print(NameError)
+        finally:
+            transaction.set_autocommit(True)
+
         return context
 
 
