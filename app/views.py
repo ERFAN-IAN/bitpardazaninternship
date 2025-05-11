@@ -7,10 +7,11 @@ from django.views.generic import (
     TemplateView,
     FormView
 )
-from .forms import UserSignupForm, BookForm, BookFormSingleNoAjax, BookFormSingleAjax, BookSelectForm
+from .forms import UserSignupForm, BookForm, BookFormSingleNoAjax, BookFormSingleAjax, BookSelectForm, \
+    ForgotPasswordForm, ConfirmCodeForm
 from braces.views import GroupRequiredMixin
 from django.urls import reverse_lazy, reverse
-from .models import Author, Book, BookCategory, UserProfile, Purchase
+from .models import Author, Book, BookCategory, UserProfile, Purchase, PasswordResetCode
 from django.db.models import Q, Count
 from django.shortcuts import get_object_or_404, redirect
 from django_tables2 import SingleTableView
@@ -26,6 +27,10 @@ from django.contrib.auth.views import LoginView, LogoutView
 from django.db import transaction
 from django import forms
 from django.contrib import messages
+from django.contrib.auth.forms import SetPasswordForm
+from django.utils import timezone
+import random, datetime
+from .utility import send_sms
 
 
 # from django.views.generic.detail import SingleObjectMixin
@@ -343,8 +348,10 @@ class SignUpCreateView(CreateView):
         response = super().form_valid(form)
         user = self.object
         father_name = form.cleaned_data.get('father_name')
+        phone_number = form.cleaned_data.get('phone_number')
         profile, created = UserProfile.objects.get_or_create(user=user)
         profile.father_name = father_name
+        profile.phone_number = phone_number
         profile.save()
         operate_group, created = Group.objects.get_or_create(name='Operator')
         user.groups.add(operate_group)
@@ -371,7 +378,10 @@ class BookSelectView(FormView):
         book_id = self.request.POST.get('book')
         return reverse("edit_book", kwargs={"pk": book_id})
 
+
 import logging
+
+
 class BookPurchaseView(LoginRequiredMixin, FormView):
     template_name = "app/purchaseconfirmation.html"
     success_url = '/'
@@ -409,3 +419,110 @@ class BookPurchaseView(LoginRequiredMixin, FormView):
             logger.error("Purchase error: %s", e, exc_info=True)
             messages.error(self.request, "An error occurred during purchase. Please try again.")
             return redirect('/')
+
+
+class ForgotPasswordFormView(FormView):
+    template_name = 'app/forgotpass.html'
+    form_class = ForgotPasswordForm
+    success_url = reverse_lazy("confirm_code")
+
+    def dispatch(self, request, *args, **kwargs):
+        if request.user.is_authenticated:
+            return redirect('/')
+        return super().dispatch(request, *args, **kwargs)
+
+    def form_valid(self, form):
+        user_name = form.cleaned_data['user_name']
+        phone_number = form.cleaned_data['phone_number']
+        if phone_number:
+            try:
+                user = User.objects.get(profile__phone_number=phone_number)
+            except User.DoesNotExist:
+                user = None
+
+        if user_name and not phone_number:
+            try:
+                user = User.objects.get(username=user_name)
+            except User.DoesNotExist:
+                user = None
+                return self.form_invalid(form)
+
+        code = f"{random.randint(100000, 999999)}"
+        expires_at = timezone.now() + datetime.timedelta(minutes=2)
+
+        PasswordResetCode.objects.update_or_create(
+            user=user,
+            defaults={'code': code, 'expires_at': expires_at, 'created_at': timezone.now()}
+        )
+
+        # Send SMS with code
+        try:
+            send_sms(user.profile.phone_number, code)
+        except Exception as e:
+            form.add_error(None, f"Failed to send SMS: {e}")
+            return self.form_invalid(form)
+
+        # Save user id in session for next steps
+        self.request.session['password_reset_user_id'] = user.id
+        messages.success(self.request, "Verification code sent to your phone.")
+        return super().form_valid(form)
+
+
+class ConfirmCodeFormView(FormView):
+    template_name = 'app/resetepasswordpage.html'
+    form_class = ConfirmCodeForm
+    success_url = reverse_lazy("resetpassword")
+
+    def dispatch(self, request, *args, **kwargs):
+        if 'password_reset_user_id' not in request.session:
+            messages.error(request, "Please start password reset process first.")
+            return redirect('forgotpassword')
+        return super().dispatch(request, *args, **kwargs)
+
+    def form_valid(self, form):
+        formcode = form.cleaned_data['code']
+        user_id = self.request.session.get("password_reset_user_id")
+
+        try:
+            reset_request = PasswordResetCode.objects.get(user=user_id)
+        except PasswordResetCode.DoesNotExist:
+            messages.error(self.request, "No reset request found. Please start again.")
+            return redirect('forgotpassword')
+        code = reset_request.code
+        if reset_request.is_expired():
+            form.add_error('code', "Verification code expired. Please request a new one.")
+            return self.form_invalid(form)
+        if formcode != code:
+            form.add_error('code', "code is incorrect")
+            return self.form_invalid(form)
+
+        self.request.session['password_reset_verified'] = True
+        messages.success(self.request, "Code verified. You can now reset your password.")
+        return super().form_valid(form)
+
+
+class ResetPasswordFormView(FormView):
+    template_name = 'app/resetepasswordpage.html'
+    form_class = SetPasswordForm
+    success_url = reverse_lazy('login')
+
+    def dispatch(self, request, *args, **kwargs):
+        if not request.session.get('password_reset_verified'):
+            messages.error(request, "You must verify your phone code first.")
+            return redirect('forgotpassword')
+        return super().dispatch(request, *args, **kwargs)
+
+    def get_form_kwargs(self):
+        kwargs = super().get_form_kwargs()
+        user_id = self.request.session.get('password_reset_user_id')
+        user = get_object_or_404(User, id=user_id)
+        kwargs['user'] = user
+        return kwargs
+
+    def form_valid(self, form):
+        form.save()
+        # Clean up session
+        self.request.session.pop('password_reset_user_id', None)
+        self.request.session.pop('password_reset_verified', None)
+        messages.success(self.request, "Your password has been reset successfully.")
+        return super().form_valid(form)

@@ -4,6 +4,7 @@ from django.utils import timezone
 from django.core.validators import MaxValueValidator
 from django.contrib.auth.models import User
 from decimal import Decimal
+from phonenumber_field.modelfields import PhoneNumberField
 
 
 # Create your models here.
@@ -56,6 +57,7 @@ class UserProfile(models.Model):
     user = models.OneToOneField(User, on_delete=models.CASCADE, related_name='profile')
     father_name = models.CharField(max_length=150, null=True, blank=True, default=None)
     balance = models.DecimalField(decimal_places=2, default=Decimal('0.00'), max_digits=12)
+    phone_number = PhoneNumberField(null=True, unique=True)
 
     def __str__(self):
         return f"Profile of {self.user.username}"
@@ -69,3 +71,13 @@ class Purchase(models.Model):
 
     def __str__(self):
         return f"{self.user.username} bought {self.book.title} for {self.price}"
+
+
+class PasswordResetCode(models.Model):
+    user = models.ForeignKey(User, on_delete=models.CASCADE)
+    code = models.CharField(max_length=6)
+    created_at = models.DateTimeField(auto_now_add=True)
+    expires_at = models.DateTimeField()
+
+    def is_expired(self):
+        return timezone.now() > self.expires_at

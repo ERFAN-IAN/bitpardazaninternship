@@ -4,14 +4,16 @@ from django.contrib.auth.models import User
 from django_select2.forms import Select2Widget
 from .models import Book, BookCategory, Author
 from django_select2.forms import ModelSelect2Widget
+from phonenumber_field.formfields import PhoneNumberField
 
 
 class UserSignupForm(UserCreationForm):
     father_name = forms.CharField(max_length=150, required=True, label="Father's Name")
+    phone_number = PhoneNumberField(required=True, label="Phone Number")
 
     class Meta:
         model = User
-        fields = ['username', 'father_name', 'password1', 'password2']
+        fields = ['username', 'father_name', 'password1', 'password2', 'phone_number']
 
 
 class BookForm(forms.ModelForm):
@@ -53,13 +55,15 @@ class BookFormSingleAjax(forms.ModelForm):
                 attrs={'data-placeholder': 'Select a category', 'style': 'width: 100%;'}
             ),
         }
+
+
 class BookSelectForm(forms.Form):
     author = forms.ModelChoiceField(
         queryset=Author.objects.all(),
         label="Author",
         widget=ModelSelect2Widget(
             model=Author,
-            search_fields=['first_name__icontains','last_name__icontains'],
+            search_fields=['first_name__icontains', 'last_name__icontains'],
             attrs={
                 'data-placeholder': 'Select an author',
                 'style': 'width: 100%;',  # Make the select2 widget full width
@@ -83,3 +87,27 @@ class BookSelectForm(forms.Form):
 
         )
     )
+
+
+class ForgotPasswordForm(forms.Form):
+    user_name = forms.CharField(max_length=150, label="Username", required=False)
+    phone_number = PhoneNumberField(label='Phone Number', required=False)
+
+    def clean(self):
+        cleaned_data = super().clean()
+        user_name = cleaned_data.get('user_name')
+        phone_number = cleaned_data.get('phone_number')
+
+        if not user_name and not phone_number:
+            raise forms.ValidationError(
+                "Please provide either your name or your phone number."
+            )
+        if user_name or phone_number:
+            if not User.objects.filter(profile__phone_number=phone_number).exists() and not User.objects.filter(
+                    username=user_name).exists():
+                raise forms.ValidationError('Neither user nor phone number exist')
+        return cleaned_data
+
+
+class ConfirmCodeForm(forms.Form):
+    code = forms.CharField(max_length=6, min_length=6)

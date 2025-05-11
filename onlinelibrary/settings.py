@@ -12,6 +12,7 @@ https://docs.djangoproject.com/en/5.2/ref/settings/
 
 from pathlib import Path
 import os
+import environ
 
 # Build paths inside the project like this: BASE_DIR / 'subdir'.
 BASE_DIR = Path(__file__).resolve().parent.parent
@@ -26,6 +27,13 @@ SECRET_KEY = "django-insecure-0cs$=ldww@l(ut^46&2$g)pg8i(bn1l6aoe4z2=8!5!4=5@+2v
 DEBUG = True
 
 ALLOWED_HOSTS = []
+
+env = environ.Env(
+    DEBUG=(bool, False),
+)
+
+# Read .env file
+environ.Env.read_env(os.path.join(BASE_DIR, '.env'))
 
 # Application definition
 DJANGO_APPS = [
@@ -42,7 +50,8 @@ DJANGO_APPS = [
     "crispy_bootstrap4",
     'django_icons',
     'django_select2',
-    'django_extensions'
+    'django_extensions',
+    'phonenumber_field'
 
 
 ]
