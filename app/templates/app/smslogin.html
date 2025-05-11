@@ -1,0 +1,12 @@
+{% extends "base.html" %}
+
+{% block content %}
+
+<h1>sms login</h1>
+<form method="POST">
+{% csrf_token %}
+{{ form }}
+<button type="submit" style="cursor: pointer">Submit!</button>
+</form>
+
+{% endblock %}

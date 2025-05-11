@@ -8,7 +8,7 @@ from django.views.generic import (
     FormView
 )
 from .forms import UserSignupForm, BookForm, BookFormSingleNoAjax, BookFormSingleAjax, BookSelectForm, \
-    ForgotPasswordForm, ConfirmCodeForm
+    ForgotPasswordForm, ConfirmCodeForm, SmsConfirmCodeForm
 from braces.views import GroupRequiredMixin
 from django.urls import reverse_lazy, reverse
 from .models import Author, Book, BookCategory, UserProfile, Purchase, PasswordResetCode
@@ -31,7 +31,7 @@ from django.contrib.auth.forms import SetPasswordForm
 from django.utils import timezone
 import random, datetime
 from .utility import send_sms
-
+from django.contrib.auth import login
 
 # from django.views.generic.detail import SingleObjectMixin
 # from braces.views import SuperuserRequiredMixin
@@ -525,4 +525,96 @@ class ResetPasswordFormView(FormView):
         self.request.session.pop('password_reset_user_id', None)
         self.request.session.pop('password_reset_verified', None)
         messages.success(self.request, "Your password has been reset successfully.")
+        return super().form_valid(form)
+
+class SmsLoginView(FormView):
+    template_name = 'app/smslogin.html'
+    form_class = ForgotPasswordForm
+    success_url = reverse_lazy("smsloginconfirm")
+
+    def dispatch(self, request, *args, **kwargs):
+        if request.user.is_authenticated:
+            return redirect('/')
+        return super().dispatch(request, *args, **kwargs)
+    def form_valid(self, form):
+        user_name = form.cleaned_data['user_name']
+        phone_number = form.cleaned_data['phone_number']
+        if phone_number:
+            try:
+                user = User.objects.get(profile__phone_number=phone_number)
+            except User.DoesNotExist:
+                user = None
+
+        if user_name and not phone_number:
+            try:
+                user = User.objects.get(username=user_name)
+            except User.DoesNotExist:
+                user = None
+                return self.form_invalid(form)
+
+        code = f"{random.randint(100000, 999999)}"
+        expires_at = timezone.now() + datetime.timedelta(minutes=2)
+
+        PasswordResetCode.objects.update_or_create(
+            user=user,
+            defaults={'code': code, 'expires_at': expires_at, 'created_at': timezone.now()}
+        )
+
+        # Send SMS with code
+        try:
+            send_sms(user.profile.phone_number, code)
+        except Exception as e:
+            form.add_error(None, f"Failed to send SMS: {e}")
+            return self.form_invalid(form)
+
+        # Save user id in session for next steps
+        self.request.session['smslogin_user_id'] = user.id
+        messages.success(self.request, "Verification code sent to your phone.")
+        return super().form_valid(form)
+
+
+class SmsLoginConfirmCodeFormView(LoginView):
+    template_name = 'app/resetepasswordpage.html'
+    form_class = SmsConfirmCodeForm
+    success_url = "/"
+
+    def get_form_kwargs(self):
+        kwargs = super().get_form_kwargs()
+        user_id = self.request.session.get('smslogin_user_id')
+        user = None
+        if user_id:
+            user = User.objects.get(id=user_id)
+        kwargs['user'] = user
+        kwargs['request'] = self.request  # optional
+        return kwargs
+
+    def dispatch(self, request, *args, **kwargs):
+
+        if request.user.is_authenticated:
+            return redirect('/')
+        if 'smslogin_user_id' not in request.session:
+            messages.error(request, "Please relogin")
+            return redirect('smslogin')
+        return super().dispatch(request, *args, **kwargs)
+
+    def form_valid(self, form):
+        formcode = form.cleaned_data['code']
+        user_id = self.request.session.get("smslogin_user_id")
+
+        try:
+            login_request = PasswordResetCode.objects.get(user=user_id)
+        except PasswordResetCode.DoesNotExist:
+            messages.error(self.request, "No login request found. Please start again.")
+            return redirect('smslogin')
+        code = login_request.code
+        if login_request.is_expired():
+            form.add_error('code', "Verification code expired. Please request a new one.")
+            return self.form_invalid(form)
+        if formcode != code:
+            form.add_error('code', "code is incorrect")
+            return self.form_invalid(form)
+        user = User.objects.get(id=self.request.session['smslogin_user_id'])
+        login(self.request, user)
+        self.request.session.pop("smslogin_user_id", None)
+        messages.success(self.request, "Code verified.")
         return super().form_valid(form)

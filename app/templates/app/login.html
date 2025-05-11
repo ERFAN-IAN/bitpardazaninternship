@@ -13,6 +13,8 @@
         {{ form.as_p }}
         <button type="submit" value="login">login</button>
     </form>
+    <a href={% url 'smslogin' %}>SMS Login here!</a>
+    <a href={% url 'forgotpassword' %}>Forgot Password</a>
     <a href={% url "home" %} >Home</a>
 </body>
 </html>

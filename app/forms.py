@@ -100,14 +100,26 @@ class ForgotPasswordForm(forms.Form):
 
         if not user_name and not phone_number:
             raise forms.ValidationError(
-                "Please provide either your name or your phone number."
+                "Please provide either your username or your phone number."
             )
         if user_name or phone_number:
             if not User.objects.filter(profile__phone_number=phone_number).exists() and not User.objects.filter(
                     username=user_name).exists():
-                raise forms.ValidationError('Neither user nor phone number exist')
+                raise forms.ValidationError('Neither username nor phone number exist')
         return cleaned_data
 
 
 class ConfirmCodeForm(forms.Form):
     code = forms.CharField(max_length=6, min_length=6)
+
+
+class SmsConfirmCodeForm(forms.Form):
+    code = forms.CharField(max_length=6, min_length=6)
+
+    def __init__(self, *args, **kwargs):
+        self.user = kwargs.pop('user', None)      # Pop 'user' from kwargs
+        self.request = kwargs.pop('request', None)  # Optional: pop 'request' if needed
+        super().__init__(*args, **kwargs)
+
+    def get_user(self):
+        return self.user

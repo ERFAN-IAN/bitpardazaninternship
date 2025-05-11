@@ -26,7 +26,9 @@ from .views import (
     BookPurchaseView,
     ForgotPasswordFormView,
     ResetPasswordFormView,
-    ConfirmCodeFormView
+    ConfirmCodeFormView,
+    SmsLoginView,
+    SmsLoginConfirmCodeFormView
     # AuthorSlickView
 )
 
@@ -62,4 +64,6 @@ urlpatterns = [
     path('forgotpassword/', ForgotPasswordFormView.as_view(), name='forgotpassword'),
     path('resetpassword/', ResetPasswordFormView.as_view(), name='resetpassword'),
     path('confirm_code/', ConfirmCodeFormView.as_view(), name='confirm_code'),
+    path('smslogin/', SmsLoginView.as_view(), name='smslogin'),
+    path('smsloginconfirm/', SmsLoginConfirmCodeFormView.as_view(), name='smsloginconfirm'),
 ]
