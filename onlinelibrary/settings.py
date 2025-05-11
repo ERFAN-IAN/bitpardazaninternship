@@ -42,6 +42,7 @@ DJANGO_APPS = [
     "crispy_bootstrap4",
     'django_icons',
     'django_select2',
+    'django_extensions'
 
 
 ]
