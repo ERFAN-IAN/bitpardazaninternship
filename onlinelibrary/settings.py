@@ -51,8 +51,12 @@ DJANGO_APPS = [
     'django_icons',
     'django_select2',
     'django_extensions',
-    'phonenumber_field'
-
+    'phonenumber_field',
+    'django_otp',
+    'django_otp.plugins.otp_static',
+    'django_otp.plugins.otp_totp',
+    'two_factor',
+    'two_factor.plugins.phonenumber'
 
 ]
 LOCAL_APPS = [
@@ -68,6 +72,8 @@ MIDDLEWARE = [
     "django.contrib.auth.middleware.AuthenticationMiddleware",
     "django.contrib.messages.middleware.MessageMiddleware",
     "django.middleware.clickjacking.XFrameOptionsMiddleware",
+    'django.contrib.auth.middleware.AuthenticationMiddleware',
+    'django_otp.middleware.OTPMiddleware',
 ]
 
 ROOT_URLCONF = "onlinelibrary.urls"
@@ -153,3 +159,11 @@ CRISPY_TEMPLATE_PACK = "bootstrap4"
 
 LOGIN_REDIRECT_URL = '/'
 LOGIN_URL = '/login/'
+# LOGIN_URL = 'two_factor:login'
+
+# # this one is optional
+# LOGIN_REDIRECT_URL = 'two_factor:profile'
+
+TWO_FACTOR_SMS_GATEWAY = 'app.sms_gateway.KavenegarGateway'
+TWO_FACTOR_PATCH_ADMIN = False
+LOGOUT_REDIRECT_URL = '/'

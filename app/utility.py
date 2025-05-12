@@ -11,9 +11,17 @@ def send_sms(phone_number, code):
         "receptor": str(phone_number),
         "message": f"Your password reset code is: {code}"
     }
-    response = requests.post(url, data=params)
-    response.raise_for_status()  # Optional: raise exception on failure
-    return response.json()
+    try:
+        response = requests.post(url, data=params)
+        response.raise_for_status()  # Optional: raise exception on failure
+        return response.json()
+        # print('func')
+        # print(code)
+        # print(response)
+        # print(response.json())
+    except requests.exceptions.RequestException as e:
+        print(f"[SMS ERROR] Failed to send: {e}")
+
 
 
 def otp_code_generator():

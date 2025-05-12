@@ -708,3 +708,35 @@ class Login2FAConfirmView(FormView):
         countdowntime = self.request.session.get("2fa_expiry")
         context["time"] = countdowntime
         return context
+
+
+from two_factor.views import LoginView as TwoFactorLoginView
+from datetime import timedelta
+
+class Library2FALoginView(TwoFactorLoginView):
+
+    def send_token(self, token, device):
+        response = super().send_token(token, device)
+        self.request.session['otp_token_sent_at'] = timezone.now().isoformat()
+        return response
+
+    def form_valid(self, form):
+        token_sent_at_iso = self.request.session.get('otp_token_sent_at')
+        if token_sent_at_iso:
+            try:
+                token_sent_at = timezone.datetime.fromisoformat(token_sent_at_iso)
+                if timezone.is_naive(token_sent_at):
+                    token_sent_at = timezone.make_aware(token_sent_at, timezone.get_current_timezone())
+            except Exception:
+                token_sent_at = None
+
+            now = timezone.now()
+            if token_sent_at and (now - token_sent_at > timedelta(minutes=2)):
+                messages.error(self.request, "Your OTP token has expired. Please request a new one.")
+                form.add_error(None, f"Token is expired, relogin")
+                self.request.session.pop('otp_token_sent_at', None)
+                # Return the form invalid to re-render the form with error
+                return self.form_invalid(form)
+
+        # Token is valid and not expired, proceed normally
+        return super().form_valid(form)
