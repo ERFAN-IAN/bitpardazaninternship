@@ -1,6 +1,10 @@
-import requests
 import os
+import random
+import requests
+
 kavenegar_token = os.environ.get('KAVENEGARTOKEN')
+
+
 def send_sms(phone_number, code):
     url = f"https://api.kavenegar.com/v1/{kavenegar_token}/sms/send.json"
     params = {
@@ -10,3 +14,9 @@ def send_sms(phone_number, code):
     response = requests.post(url, data=params)
     response.raise_for_status()  # Optional: raise exception on failure
     return response.json()
+
+
+def otp_code_generator():
+    code = random.randint(100000, 999999)
+
+    return code

@@ -1,0 +1,52 @@
+{% extends "base.html" %}
+
+{% block content %}
+
+<h1>SMS Code</h1>
+
+<p id="countdown-timer" style="font-weight: bold; color: red;"></p>
+
+<form method="POST">
+    {% csrf_token %}
+    {{ form }}
+    <button type="submit" style="cursor: pointer">Submit!</button>
+</form>
+
+<script>
+    // Parse expiry time passed from Django context
+    const expiryTimeStr = "{{ time|default:'' }}";
+    if (expiryTimeStr) {
+        const expiryTime = new Date(expiryTimeStr);
+
+        function updateCountdown() {
+            const now = new Date();
+            const diff = expiryTime - now;
+
+            if (diff <= 0) {
+                document.getElementById('countdown-timer').innerText = "Code expired. Please request a new one.";
+                clearInterval(timerInterval);
+                return;
+            }
+
+            // Calculate minutes and seconds remaining
+            const minutes = Math.floor(diff / 1000 / 60);
+            const seconds = Math.floor((diff / 1000) % 60);
+
+            // Format with leading zeros
+            const minutesStr = minutes.toString().padStart(2, '0');
+            const secondsStr = seconds.toString().padStart(2, '0');
+
+            document.getElementById('countdown-timer').innerText = `Time remaining: ${minutesStr}:${secondsStr}`;
+        }
+
+        // Initial call
+        updateCountdown();
+
+        // Update every second
+        const timerInterval = setInterval(updateCountdown, 1000);
+    } else {
+        document.getElementById('countdown-timer').innerText = "No expiry time set.";
+    }
+</script>
+
+{% endblock %}

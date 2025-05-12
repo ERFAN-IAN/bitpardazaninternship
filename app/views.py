@@ -30,8 +30,9 @@ from django.contrib import messages
 from django.contrib.auth.forms import SetPasswordForm
 from django.utils import timezone
 import random, datetime
-from .utility import send_sms
+from .utility import send_sms, otp_code_generator
 from django.contrib.auth import login
+
 
 # from django.views.generic.detail import SingleObjectMixin
 # from braces.views import SuperuserRequiredMixin
@@ -527,6 +528,7 @@ class ResetPasswordFormView(FormView):
         messages.success(self.request, "Your password has been reset successfully.")
         return super().form_valid(form)
 
+
 class SmsLoginView(FormView):
     template_name = 'app/smslogin.html'
     form_class = ForgotPasswordForm
@@ -536,6 +538,7 @@ class SmsLoginView(FormView):
         if request.user.is_authenticated:
             return redirect('/')
         return super().dispatch(request, *args, **kwargs)
+
     def form_valid(self, form):
         user_name = form.cleaned_data['user_name']
         phone_number = form.cleaned_data['phone_number']
@@ -618,3 +621,90 @@ class SmsLoginConfirmCodeFormView(LoginView):
         self.request.session.pop("smslogin_user_id", None)
         messages.success(self.request, "Code verified.")
         return super().form_valid(form)
+
+
+class Login2FAView(LoginView):
+    template_name = 'app/logn2fa.html'
+    success_url = 'login2faconfirm'
+
+    def dispatch(self, request, *args, **kwargs):
+        if request.user.is_authenticated:
+            return redirect('/')
+        return super().dispatch(request, *args, **kwargs)
+
+    def form_valid(self, form):
+        code = otp_code_generator()
+        expiry_time = timezone.now() + datetime.timedelta(minutes=2)
+        user = form.get_user()
+        if user:
+            try:
+                send_sms(user.profile.phone_number, code)
+            except Exception as e:
+                form.add_error(None, f"Failed to send SMS: {e}")
+                return self.form_invalid(form)
+            self.request.session['2falogin_user_id'] = user.id
+            self.request.session['2fa_code'] = code
+            self.request.session['2fa_expiry'] = expiry_time.isoformat()
+            return redirect("login2faconfirm")
+        return super().form_valid(form)
+
+
+class Login2FAConfirmView(FormView):
+    template_name = 'app/login2faconfirmpage.html'
+    form_class = SmsConfirmCodeForm
+    success_url = '/'
+
+    def get_form_kwargs(self):
+        kwargs = super().get_form_kwargs()
+        user_id = self.request.session.get('2falogin_user_id')
+        user = None
+        if user_id:
+            try:
+                user = User.objects.get(id=user_id)
+            except User.DoesNotExist:
+                user = None
+        kwargs['user'] = user
+        kwargs['request'] = self.request  # optional
+        return kwargs
+
+    def dispatch(self, request, *args, **kwargs):
+        if '2falogin_user_id' not in request.session:
+            return redirect('/')
+        if '2fa_code' not in request.session:
+            return redirect('/')
+        return super().dispatch(request, *args, **kwargs)
+
+    def form_valid(self, form):
+        formcode = str(form.cleaned_data['code']).strip()
+        user_id = self.request.session.get("2falogin_user_id")
+        code = str(self.request.session.get("2fa_code")).strip()
+        expiry_str = self.request.session.get("2fa_expiry")
+        expiry = timezone.datetime.fromisoformat(expiry_str)
+        try:
+            user = User.objects.get(id=user_id)
+        except User.DoesNotExist:
+            messages.error(self.request, "User not found. Please login again.")
+            return redirect(reverse_lazy('login2fa'))
+        if timezone.now() > expiry:
+            messages.error(self.request, "token is expired, please relogin")
+            self.request.session.pop("2falogin_user_id", None)
+            self.request.session.pop("2fa_code", None)
+            self.request.session.pop("2fa_expiry", None)
+            return redirect('login2fa')
+        if formcode != code:
+            form.add_error('code', "code is incorrect")
+            print(f"Session code: {code}, Entered code: {formcode}")
+            return self.form_invalid(form)
+        print(f"Session code: {code}, Entered code: {formcode}")
+        login(self.request, user)
+        self.request.session.pop("2falogin_user_id", None)
+        self.request.session.pop("2fa_code", None)
+        self.request.session.pop("2fa_expiry", None)
+        messages.success(self.request, "Code verified.")
+        return super().form_valid(form)
+
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data(**kwargs)
+        countdowntime = self.request.session.get("2fa_expiry")
+        context["time"] = countdowntime
+        return context
