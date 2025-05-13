@@ -6,7 +6,6 @@ from django.contrib.auth.models import User
 from decimal import Decimal
 from phonenumber_field.modelfields import PhoneNumberField
 
-
 # Create your models here.
 def validate_publication_year(value):
     current_year = timezone.now().year
@@ -16,11 +15,18 @@ def validate_publication_year(value):
         )
 
 
+class Country(models.Model):
+    name = models.CharField(max_length=100)
+
+    def __str__(self):
+        return self.name
+
 class Author(models.Model):
     first_name = models.CharField(max_length=100)
     last_name = models.CharField(max_length=100)
     age = models.PositiveIntegerField(validators=[MaxValueValidator(199)])
     national_id = models.CharField(max_length=10, unique=True)
+    country = models.ForeignKey(Country, on_delete=models.PROTECT, related_name='authors')
 
     def __str__(self):
         return f"{self.first_name} {self.last_name}"
@@ -39,7 +45,7 @@ class Book(models.Model):
         validators=[validate_publication_year]
     )
     author = models.ForeignKey(Author, on_delete=models.CASCADE, related_name="books")
-    category = models.ForeignKey(BookCategory, on_delete=models.PROTECT, related_name='category')
+    category = models.ForeignKey(BookCategory, on_delete=models.PROTECT, related_name='books')
     image = models.ImageField(upload_to="books/", null=True, blank=True)
     release_date = models.DateTimeField()
     price = models.DecimalField(decimal_places=2, max_digits=12)

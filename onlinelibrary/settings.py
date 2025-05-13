@@ -56,7 +56,8 @@ DJANGO_APPS = [
     'django_otp.plugins.otp_static',
     'django_otp.plugins.otp_totp',
     'two_factor',
-    'two_factor.plugins.phonenumber'
+    'two_factor.plugins.phonenumber',
+    'django_countries',
 
 ]
 LOCAL_APPS = [

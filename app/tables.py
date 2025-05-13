@@ -13,10 +13,11 @@ class AuthorTable(tables.Table):
     full_name = tables.Column(empty_values=(), verbose_name="full name")
     detail = tables.LinkColumn("author_detail", kwargs={"pk": tables.A("pk")}, empty_values=())
     icon = tables.Column(empty_values=(), verbose_name='Age State')
+    country = tables.Column(empty_values=())
 
     class Meta:
         model = Author
-        fields = ("first_name", "last_name", "age", "icon", "national_id")
+        fields = ("first_name", "last_name", "age", "icon", "national_id", "country" )
         attrs = {'class': 'table table-striped'}
 
     def render_detail(self, record):
@@ -30,6 +31,9 @@ class AuthorTable(tables.Table):
         if int(record.age) >= 41:
             innericon = '<i class="fa fa-user-injured"></i>'
         return mark_safe(f'{innericon}')
+
+    def render_country(self, record):
+        return record.country.name
 
 
 class AuthorBooksTable(tables.Table):
@@ -92,6 +96,7 @@ class AuthorBookCountTable(tables.Table):
 class PurchaseTable(tables.Table):
     full_name = tables.Column(empty_values=(), verbose_name="full name")
     title = tables.Column(empty_values=())
+    author = tables.Column(empty_values=())
     class Meta:
         model = Purchase
         fields = ["full_name", "title", 'price', "purchased_at"]
@@ -111,3 +116,7 @@ class PurchaseTable(tables.Table):
 
     def render_title(self, record):
         return record.book.title
+
+    def render_author(self, record):
+        author = record.book.author
+        return f'{author.first_name} {author.last_name}'

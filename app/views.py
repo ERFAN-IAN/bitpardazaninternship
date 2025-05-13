@@ -73,8 +73,7 @@ class AuthorListView(FilterView, ExportMixin, SingleTableView):
 
 class AuthorCreateView(GroupRequiredMixin, CreateView):
     model = Author
-    fields = ["first_name", "last_name", "age", "national_id"]
-
+    fields = ["first_name", "last_name", "age", "national_id", "country"]
     template_name = "app/add_author_form.html"
     group_required = ['Operator', 'Moderator', 'Admin']
 
@@ -84,7 +83,7 @@ class AuthorCreateView(GroupRequiredMixin, CreateView):
 
 class AuthorUpdateView(GroupRequiredMixin, UpdateView):
     model = Author
-    fields = ["first_name", "last_name", "age", "national_id"]
+    fields = ["first_name", "last_name", "age", "national_id", "country"]
     context_object_name = "author"
     template_name = "app/edit_author_form.html"
     group_required = ['Operator', 'Moderator', 'Admin']
