@@ -9,6 +9,12 @@ from django.utils.safestring import mark_safe
 from django.conf import settings
 
 
+class DateFormatGregorian(tables.DateTimeColumn):
+    def __init__(self, *args, **kwargs):
+        custom_format = kwargs.pop('format', 'H:i d-m-Y')
+        super().__init__(format=custom_format, *args, **kwargs)
+
+
 class AuthorTable(tables.Table):
     full_name = tables.Column(empty_values=(), verbose_name="full name")
     detail = tables.LinkColumn("author_detail", kwargs={"pk": tables.A("pk")}, empty_values=())
@@ -17,7 +23,7 @@ class AuthorTable(tables.Table):
 
     class Meta:
         model = Author
-        fields = ("first_name", "last_name", "age", "icon", "national_id", "country" )
+        fields = ("first_name", "last_name", "age", "icon", "national_id", "country")
         attrs = {'class': 'table table-striped'}
 
     def render_detail(self, record):
@@ -98,7 +104,7 @@ class PurchaseTable(tables.Table):
     title = tables.Column(empty_values=())
     author = tables.Column(empty_values=())
     author_country = tables.Column(empty_values=(), verbose_name="Author's Country")
-    purchased_at = tables.DateTimeColumn(format='H:i d-m-Y', verbose_name='Purchase Date')
+    purchased_at = DateFormatGregorian(verbose_name='Purchase Date')
     jalali_date = tables.Column(empty_values=())
 
     class Meta:
