@@ -99,9 +99,11 @@ class PurchaseTable(tables.Table):
     author = tables.Column(empty_values=())
     author_country = tables.Column(empty_values=(), verbose_name="Author's Country")
     purchased_at = tables.DateTimeColumn(format='H:i d-m-Y', verbose_name='Purchase Date')
+    jalali_date = tables.Column(empty_values=())
+
     class Meta:
         model = Purchase
-        fields = ["full_name", "title", 'price', "purchased_at"]
+        fields = ["full_name", "title", 'price', "purchased_at", 'jalali_date']
         attrs = {'class': 'table table-striped table-hover'}
 
     def render_full_name(self, record):
@@ -126,5 +128,5 @@ class PurchaseTable(tables.Table):
     def render_author_country(self, record):
         return record.book.author.country.name
 
-    # def render_date(self, record):
-    #     return record.purchased_at
+    def render_jalali_date(self, record):
+        return jdatetime.datetime.fromgregorian(date=record.purchased_at).strftime('%Y-%m-%d %H:%M')
