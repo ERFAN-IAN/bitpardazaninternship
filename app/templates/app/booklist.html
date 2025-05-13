@@ -1,5 +1,5 @@
-
-<script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+{% extends "base.html" %}
+{% block content %}
 <h1>hey</h1>
         <form method="get">
             {{ filter.form }}
@@ -9,3 +9,4 @@
 {% for item in object_list %}
     {{ item }}
 {% endfor %}
+{% endblock content %}

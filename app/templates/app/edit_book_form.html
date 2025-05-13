@@ -1,7 +1,9 @@
-<script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+{% extends "base.html" %}
+{% block content %}
 <form method="post" action="" enctype="multipart/form-data">
   {% csrf_token %} {{form}}
     {{ form.media }}
   <button type="submit">Submit</button>
   <button><a href="{% url 'delete_book' book.id %}">Delete</a></button>
 </form>
+{% endblock content %}

@@ -8,7 +8,7 @@ from django.views.generic import (
     FormView
 )
 from .forms import UserSignupForm, BookForm, BookFormSingleNoAjax, BookFormSingleAjax, BookSelectForm, \
-    ForgotPasswordForm, ConfirmCodeForm, SmsConfirmCodeForm
+    ForgotPasswordForm, ConfirmCodeForm, SmsConfirmCodeForm, TestForm
 from braces.views import GroupRequiredMixin
 from django.urls import reverse_lazy, reverse
 from .models import Author, Book, BookCategory, UserProfile, Purchase, PasswordResetCode
@@ -381,6 +381,10 @@ class BookSelectView(FormView):
     def get_success_url(self):
         book_id = self.request.POST.get('book')
         return reverse("edit_book", kwargs={"pk": book_id})
+    #
+    # def form_valid(self, form):
+    #
+    #     return super()
 
 
 import logging
@@ -742,8 +746,9 @@ class Library2FALoginView(TwoFactorLoginView):
         return super().form_valid(form)
 
 
-class TestView(UserPassesTestMixin, TemplateView):
+class TestView(UserPassesTestMixin, FormView):
     template_name = 'app/test.html'
+    form_class = TestForm
 
     def test_func(self):
         if not self.request.user.is_superuser:
