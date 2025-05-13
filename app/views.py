@@ -15,7 +15,7 @@ from .models import Author, Book, BookCategory, UserProfile, Purchase, PasswordR
 from django.db.models import Q, Count
 from django.shortcuts import get_object_or_404, redirect
 from django_tables2 import SingleTableView
-from .tables import AuthorBooksTable, AuthorTable, AuthorBookCountTable
+from .tables import AuthorBooksTable, AuthorTable, AuthorBookCountTable, PurchaseTable
 from django_tables2.export.views import ExportMixin
 from django_filters.views import FilterView
 from django_tables2.views import MultiTableMixin
@@ -754,3 +754,9 @@ class TestView(UserPassesTestMixin, FormView):
         if not self.request.user.is_superuser:
             messages.error(self.request, 'Please login as superuser')
         return self.request.user.is_superuser
+
+
+class PurchaseView(SingleTableView):
+    model = Purchase
+    table_class = PurchaseTable
+    template_name = "app/purchaselist.html"

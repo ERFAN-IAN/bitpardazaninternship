@@ -32,7 +32,8 @@ from .views import (
     Login2FAView,
     Login2FAConfirmView,
     Library2FALoginView,
-    TestView
+    TestView,
+    PurchaseView
     # AuthorSlickView
 )
 
@@ -74,4 +75,5 @@ urlpatterns = [
     path('login2faconfirm/', Login2FAConfirmView.as_view(), name='login2faconfirm'),
     path('librarylogin/login/', Library2FALoginView.as_view(), name='librarylogin'),
     path('tests/', TestView.as_view(), name='test'),
+    path('purchaselist/', PurchaseView.as_view(), name='purchaselist'),
 ]

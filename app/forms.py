@@ -169,5 +169,5 @@ class SmsConfirmCodeForm(forms.Form):
 class TestForm(forms.ModelForm):
     class Meta:
         model = Book
-        fields = "__all__"
+        fields = ["title", "release_date", "author", "category", "image"]
         widgets = {'category': Select2MultipleWidget()}

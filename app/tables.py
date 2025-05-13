@@ -1,5 +1,5 @@
 import django_tables2 as tables
-from .models import Author, Book
+from .models import Author, Book, Purchase
 import django_tables2 as tables
 import jdatetime
 from django.db.models import Count
@@ -13,6 +13,7 @@ class AuthorTable(tables.Table):
     full_name = tables.Column(empty_values=(), verbose_name="full name")
     detail = tables.LinkColumn("author_detail", kwargs={"pk": tables.A("pk")}, empty_values=())
     icon = tables.Column(empty_values=(), verbose_name='Age State')
+
     class Meta:
         model = Author
         fields = ("first_name", "last_name", "age", "icon", "national_id")
@@ -31,11 +32,11 @@ class AuthorTable(tables.Table):
         return mark_safe(f'{innericon}')
 
 
-
 class AuthorBooksTable(tables.Table):
     edit = tables.LinkColumn("edit_book", kwargs={"pk": tables.A("pk")}, empty_values=())
     delete = tables.LinkColumn("delete_book", kwargs={"pk": tables.A("pk")}, empty_values=())
     purchase = tables.LinkColumn('purchase_page', kwargs={"pk": tables.A("pk")}, empty_values=())
+
     class Meta:
         model = Book
         fields = ("title", "publication_year", "category", "image", "release_date", 'price')
@@ -86,3 +87,27 @@ class AuthorBookCountTable(tables.Table):
 
     def render_book_count(self, value):
         return f"{value}"
+
+
+class PurchaseTable(tables.Table):
+    full_name = tables.Column(empty_values=(), verbose_name="full name")
+    title = tables.Column(empty_values=())
+    class Meta:
+        model = Purchase
+        fields = ["full_name", "title", 'price', "purchased_at"]
+        attrs = {'class': 'table table-striped table-hover'}
+
+    def render_full_name(self, record):
+        customer = record.user.username
+        first_name = record.user.first_name
+        last_name = record.user.last_name
+        if first_name:
+            customer = f"{first_name}"
+        if last_name:
+            customer = f"{last_name}"
+        if first_name and last_name:
+            customer = f'{first_name} {last_name}'
+        return customer
+
+    def render_title(self, record):
+        return record.book.title
