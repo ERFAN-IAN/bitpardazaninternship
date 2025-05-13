@@ -22,3 +22,4 @@ django-appconf
 jalali-core
 qrcode
 tablib
+requests
