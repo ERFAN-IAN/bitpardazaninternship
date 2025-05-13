@@ -15,6 +15,12 @@ class DateFormatGregorian(tables.DateTimeColumn):
         super().__init__(format=custom_format, *args, **kwargs)
 
 
+class DateTimeJalali(tables.Column):
+
+    def render(self, value):
+        return jdatetime.datetime.fromgregorian(datetime=value).strftime('%Y-%m-%d %H:%M')
+
+
 class AuthorTable(tables.Table):
     full_name = tables.Column(empty_values=(), verbose_name="full name")
     detail = tables.LinkColumn("author_detail", kwargs={"pk": tables.A("pk")}, empty_values=())
@@ -105,7 +111,7 @@ class PurchaseTable(tables.Table):
     author = tables.Column(empty_values=())
     author_country = tables.Column(empty_values=(), verbose_name="Author's Country")
     purchased_at = DateFormatGregorian(verbose_name='Purchase Date')
-    jalali_date = tables.Column(empty_values=())
+    jalali_date = DateTimeJalali(accessor='purchased_at', verbose_name='Purchase Date (Jalali)')
 
     class Meta:
         model = Purchase
@@ -134,5 +140,5 @@ class PurchaseTable(tables.Table):
     def render_author_country(self, record):
         return record.book.author.country.name
 
-    def render_jalali_date(self, record):
-        return jdatetime.datetime.fromgregorian(date=record.purchased_at).strftime('%Y-%m-%d %H:%M')
+    # def render_jalali_date(self, record):
+    #     return jdatetime.datetime.fromgregorian(date=record.purchased_at).strftime('%Y-%m-%d %H:%M')
