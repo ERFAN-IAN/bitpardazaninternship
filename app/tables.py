@@ -12,22 +12,23 @@ from django.conf import settings
 class AuthorTable(tables.Table):
     full_name = tables.Column(empty_values=(), verbose_name="full name")
     detail = tables.LinkColumn("author_detail", kwargs={"pk": tables.A("pk")}, empty_values=())
-
+    icon = tables.Column(empty_values=(), verbose_name='Age State')
     class Meta:
         model = Author
-        fields = ("first_name", "last_name", "age", "national_id")
+        fields = ("first_name", "last_name", "age", "icon", "national_id")
         attrs = {'class': 'table table-striped'}
 
     def render_detail(self, record):
         return 'Details'
 
     def render_full_name(self, record):
-        icon = '<i class="fa fa-child"></i>' if int(record.age) >= 19 else '<i class="fa fa-baby"></i>'
+        return mark_safe(f'{record.first_name} {record.last_name}')
+
+    def render_icon(self, record):
+        innericon = '<i class="fa fa-child"></i>' if int(record.age) >= 19 else '<i class="fa fa-baby"></i>'
         if int(record.age) >= 41:
-            icon = '<i class="fa fa-user-injured"></i>'
-        return mark_safe(f'{record.first_name} {record.last_name} {icon}')
-
-
+            innericon = '<i class="fa fa-user-injured"></i>'
+        return mark_safe(f'{innericon}')
 
 
 

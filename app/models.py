@@ -64,7 +64,7 @@ class UserProfile(models.Model):
 
 
 class Purchase(models.Model):
-    user = models.OneToOneField(User, on_delete=models.PROTECT, related_name='purchase')
+    user = models.ForeignKey(User, on_delete=models.PROTECT, related_name='purchase')
     book = models.ForeignKey(Book, on_delete=models.PROTECT, related_name="purchase")
     price = models.DecimalField(decimal_places=2, max_digits=12)
     purchased_at = models.DateTimeField(auto_now_add=True)
