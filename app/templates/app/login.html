@@ -1,9 +1,5 @@
-<!DOCTYPE html>
-<html>
-<head>
-    <title>login</title>
-</head>
-<body>
+{% extends "base.html" %}
+{% block content %}
     <h2>login</h2>
     {% if form.errors %}
         <p style="color:red;">Username or password is wrong</p>
@@ -18,5 +14,8 @@
     <a href={% url 'librarylogin' %}>Library 2FA Login</a>
     <a href={% url 'forgotpassword' %}>Forgot Password</a>
     <a href={% url "home" %} >Home</a>
-</body>
-</html>
+
+{% endblock content %}
+{% block title %}
+    Login
+{% endblock title %}

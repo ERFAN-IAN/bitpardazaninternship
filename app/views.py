@@ -32,6 +32,9 @@ from django.utils import timezone
 import random, datetime
 from .utility import send_sms, otp_code_generator
 from django.contrib.auth import login
+from two_factor.views import LoginView as TwoFactorLoginView
+from datetime import timedelta
+from django.contrib.auth.mixins import UserPassesTestMixin
 
 
 # from django.views.generic.detail import SingleObjectMixin
@@ -710,9 +713,6 @@ class Login2FAConfirmView(FormView):
         return context
 
 
-from two_factor.views import LoginView as TwoFactorLoginView
-from datetime import timedelta
-
 class Library2FALoginView(TwoFactorLoginView):
 
     def send_token(self, token, device):
@@ -740,3 +740,12 @@ class Library2FALoginView(TwoFactorLoginView):
 
         # Token is valid and not expired, proceed normally
         return super().form_valid(form)
+
+
+class TestView(UserPassesTestMixin, TemplateView):
+    template_name = 'app/test.html'
+
+    def test_func(self):
+        if not self.request.user.is_superuser:
+            messages.error(self.request, 'Please login as superuser')
+        return self.request.user.is_superuser
