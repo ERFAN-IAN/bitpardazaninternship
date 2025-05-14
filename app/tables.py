@@ -23,7 +23,7 @@ class DateTimeJalali(tables.Column):
 
 class AuthorTable(tables.Table):
     full_name = tables.Column(empty_values=(), verbose_name="full name")
-    detail = tables.LinkColumn("author_detail", kwargs={"pk": tables.A("pk")}, empty_values=())
+    detail = tables.LinkColumn("author_detail", kwargs={"pk": tables.A("pk")}, empty_values=(), exclude_from_export=True)
     icon = tables.Column(empty_values=(), verbose_name='Age State')
     country = tables.Column(empty_values=())
 
