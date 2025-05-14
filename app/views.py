@@ -755,7 +755,7 @@ class TestView(UserPassesTestMixin, FormView):
         return self.request.user.is_superuser
 
 
-class PurchaseView(SingleTableView):
+class PurchaseView(ExportMixin, SingleTableView):
     model = Purchase
     table_class = PurchaseTable
     template_name = "app/purchaselist.html"
