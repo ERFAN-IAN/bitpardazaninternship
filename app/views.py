@@ -36,7 +36,6 @@ from two_factor.views import LoginView as TwoFactorLoginView
 from datetime import timedelta
 from django.contrib.auth.mixins import UserPassesTestMixin
 
-
 # from django.views.generic.detail import SingleObjectMixin
 # from braces.views import SuperuserRequiredMixin
 # from django.contrib.auth.decorators import user_passes_test
@@ -44,8 +43,6 @@ from django.contrib.auth.mixins import UserPassesTestMixin
 # from chartjs.views.pie import HighChartPieView
 # from django.http import JsonResponse
 # from django.db.models import Sum
-# from slick_reporting.views import ReportView, Chart
-# from slick_reporting.fields import ComputationField
 # from .reports import AuthorBookReport
 # from django.shortcuts import render
 
@@ -241,15 +238,6 @@ class AuthorBookPieView(TemplateView):
 
         context["chart_data"] = chart_data
         return context
-
-
-# class AuthorSlickView(TemplateView):
-#     template_name = "app/authorslick.html"
-#
-#     def get_context_data(self, **kwargs):
-#         context = super().get_context_data(**kwargs)
-#         context['form'] = None
-#         return context
 
 
 class IndexView(LoginRequiredMixin, TemplateView):
@@ -759,3 +747,4 @@ class PurchaseView(ExportMixin, SingleTableView):
     model = Purchase
     table_class = PurchaseTable
     template_name = "app/purchaselist.html"
+

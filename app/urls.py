@@ -33,10 +33,9 @@ from .views import (
     Login2FAConfirmView,
     Library2FALoginView,
     TestView,
-    PurchaseView
-    # AuthorSlickView
+    PurchaseView,
 )
-
+from .reports import BookSalesReport, BookPublicationReport, AuthorByCountryReport
 
 # author_book_tree_json,
 urlpatterns = [
@@ -51,9 +50,7 @@ urlpatterns = [
     path("author_bookcount", AuthorBookCountView.as_view(), name="authorbookcount"),
     path("author_bookmixin", AuthorBookMixinView.as_view(), name="authorbookmixin"),
     path('authors-tree/', AuthorBookTreeView.as_view(), name='author-book-tree'),
-    # path('authors-tree/json/', author_book_tree_json, name='author-book-tree-json'),
     path('standalone_pie/', AuthorBookPieView.as_view(), name='standalone_pie'),
-    # path('authorslick', AuthorSlickView.as_view(), name='authorslick'),
     path('login/', CustomLoginView.as_view(), name='login'),
     path('logout/', CustomLogoutView.as_view(), name='logout'),
     path('index', IndexView.as_view(), name='index'),
@@ -76,4 +73,7 @@ urlpatterns = [
     path('librarylogin/login/', Library2FALoginView.as_view(), name='librarylogin'),
     path('tests/', TestView.as_view(), name='test'),
     path('purchaselist/', PurchaseView.as_view(), name='purchaselist'),
+    path('reports/book-sales/', BookSalesReport.as_view(), name='book-sales-report'),
+    path('reports/book-publication/', BookPublicationReport.as_view(), name='book-publication-report'),
+    path('reports/authors-by-country/', AuthorByCountryReport.as_view(), name='authors-by-country-report'),
 ]
