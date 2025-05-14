@@ -13,6 +13,7 @@ https://docs.djangoproject.com/en/5.2/ref/settings/
 from pathlib import Path
 import os
 import environ
+
 # Build paths inside the project like this: BASE_DIR / 'subdir'.
 BASE_DIR = Path(__file__).resolve().parent.parent
 
@@ -167,3 +168,4 @@ LOGIN_URL = '/login/'
 TWO_FACTOR_SMS_GATEWAY = 'app.sms_gateway.KavenegarGateway'
 TWO_FACTOR_PATCH_ADMIN = False
 LOGOUT_REDIRECT_URL = '/'
+TWO_FACTOR_LOGIN_TIMEOUT = 120

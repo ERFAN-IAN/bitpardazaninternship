@@ -10,6 +10,7 @@ from django.views.generic import (
 from .forms import UserSignupForm, BookForm, BookFormSingleNoAjax, BookFormSingleAjax, BookSelectForm, \
     ForgotPasswordForm, ConfirmCodeForm, SmsConfirmCodeForm, TestForm
 from braces.views import GroupRequiredMixin
+from django.utils.dateparse import parse_datetime
 from django.urls import reverse_lazy, reverse
 from .models import Author, Book, BookCategory, UserProfile, Purchase, PasswordResetCode
 from django.db.models import Q, Count
@@ -35,6 +36,7 @@ from django.contrib.auth import login
 from two_factor.views import LoginView as TwoFactorLoginView
 from datetime import timedelta
 from django.contrib.auth.mixins import UserPassesTestMixin
+
 
 # from django.views.generic.detail import SingleObjectMixin
 # from braces.views import SuperuserRequiredMixin
@@ -705,32 +707,10 @@ class Login2FAConfirmView(FormView):
 
 
 class Library2FALoginView(TwoFactorLoginView):
-
-    def send_token(self, token, device):
-        response = super().send_token(token, device)
-        self.request.session['otp_token_sent_at'] = timezone.now().isoformat()
-        return response
-
-    def form_valid(self, form):
-        token_sent_at_iso = self.request.session.get('otp_token_sent_at')
-        if token_sent_at_iso:
-            try:
-                token_sent_at = timezone.datetime.fromisoformat(token_sent_at_iso)
-                if timezone.is_naive(token_sent_at):
-                    token_sent_at = timezone.make_aware(token_sent_at, timezone.get_current_timezone())
-            except Exception:
-                token_sent_at = None
-
-            now = timezone.now()
-            if token_sent_at and (now - token_sent_at > timedelta(minutes=2)):
-                messages.error(self.request, "Your OTP token has expired. Please request a new one.")
-                form.add_error(None, f"Token is expired, relogin")
-                self.request.session.pop('otp_token_sent_at', None)
-                # Return the form invalid to re-render the form with error
-                return self.form_invalid(form)
-
-        # Token is valid and not expired, proceed normally
-        return super().form_valid(form)
+    def dispatch(self, request, *args, **kwargs):
+        if request.user.is_authenticated:
+            return redirect('/')
+        return super().dispatch(request, *args, **kwargs)
 
 
 class TestView(UserPassesTestMixin, FormView):
@@ -747,4 +727,3 @@ class PurchaseView(ExportMixin, SingleTableView):
     model = Purchase
     table_class = PurchaseTable
     template_name = "app/purchaselist.html"
-
