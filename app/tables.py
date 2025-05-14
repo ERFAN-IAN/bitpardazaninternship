@@ -21,9 +21,20 @@ class DateTimeJalali(tables.Column):
         return jdatetime.datetime.fromgregorian(datetime=value).strftime('%Y-%m-%d %H:%M')
 
 
+class CurrencyColumn(tables.Column):
+    def render(self, value):
+        if value is None:
+            return ""
+        try:
+            return "{:,}$".format(value)
+        except (ValueError, TypeError):
+            return value
+
+
 class AuthorTable(tables.Table):
     full_name = tables.Column(empty_values=(), verbose_name="full name")
-    detail = tables.LinkColumn("author_detail", kwargs={"pk": tables.A("pk")}, empty_values=(), exclude_from_export=True)
+    detail = tables.LinkColumn("author_detail", kwargs={"pk": tables.A("pk")}, empty_values=(),
+                               exclude_from_export=True)
     icon = tables.Column(empty_values=(), verbose_name='Age State')
     country = tables.Column(empty_values=())
 
@@ -61,7 +72,7 @@ class AuthorBooksTable(tables.Table):
     edit = tables.LinkColumn("edit_book", kwargs={"pk": tables.A("pk")}, empty_values=())
     delete = tables.LinkColumn("delete_book", kwargs={"pk": tables.A("pk")}, empty_values=())
     purchase = tables.LinkColumn('purchase_page', kwargs={"pk": tables.A("pk")}, empty_values=())
-
+    price = CurrencyColumn(accessor="price")
     class Meta:
         model = Book
         fields = ("title", "publication_year", "category", "image", "release_date", 'price')
@@ -121,10 +132,11 @@ class PurchaseTable(tables.Table):
     author_country = tables.Column(empty_values=(), verbose_name="Author's Country")
     purchased_at = DateFormatGregorian(verbose_name='Purchase Date')
     jalali_date = DateTimeJalali(accessor='purchased_at', verbose_name='Purchase Date (Jalali)')
+    price_formatted = CurrencyColumn(accessor='price')
 
     class Meta:
         model = Purchase
-        fields = ["full_name", "title", 'price', "purchased_at", 'jalali_date']
+        fields = ["full_name", "title", 'price_formatted', "purchased_at", 'jalali_date']
         attrs = {'class': 'table table-striped table-hover'}
 
     def render_full_name(self, record):
