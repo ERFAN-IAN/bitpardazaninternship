@@ -108,7 +108,7 @@ class AuthorBookCountTable(tables.Table):
 class PurchaseTable(tables.Table):
     full_name = tables.Column(empty_values=(), verbose_name="full name")
     title = tables.Column(empty_values=())
-    author = tables.Column(empty_values=())
+    author = tables.LinkColumn("author_detail", kwargs={"pk": tables.A("book.author.pk")}, empty_values=())
     author_country = tables.Column(empty_values=(), verbose_name="Author's Country")
     purchased_at = DateFormatGregorian(verbose_name='Purchase Date')
     jalali_date = DateTimeJalali(accessor='purchased_at', verbose_name='Purchase Date (Jalali)')
