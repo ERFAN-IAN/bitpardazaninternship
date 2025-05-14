@@ -44,6 +44,15 @@ class AuthorTable(tables.Table):
             innericon = '<i class="fa fa-user-injured"></i>'
         return mark_safe(f'{innericon}')
 
+    def value_icon(self, record):
+        age = int(record.age)
+        if age >= 41:
+            return "Elder"
+        elif age >= 19:
+            return "Adult"
+        else:
+            return "Child"
+
     def render_country(self, record):
         return record.country.name
 
