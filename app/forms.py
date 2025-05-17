@@ -35,7 +35,7 @@ class BookFormSingleNoAjax(forms.ModelForm):
 
     class Meta:
         model = Book
-        fields = ["title", "release_date", "author", "category", "image"]
+        fields = ["title", "release_date", "author", "category", "image", "price"]
         widgets = {
             'category': Select2Widget(),
         }
@@ -54,7 +54,7 @@ class BookFormSingleAjax(forms.ModelForm):
 
     class Meta:
         model = Book
-        fields = ["title", "release_date", "author", "category", "image"]
+        fields = ["title", "release_date", "category", "image", "price"]
         widgets = {
             'category': CategoryAjaxWidget(
                 attrs={'data-placeholder': 'Select a category', 'style': 'width: 100%;'}
