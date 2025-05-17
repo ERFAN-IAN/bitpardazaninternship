@@ -8,7 +8,6 @@ import datetime
 from django.utils.safestring import mark_safe
 from django.conf import settings
 
-
 class DateFormatGregorian(tables.DateTimeColumn):
     def __init__(self, *args, **kwargs):
         custom_format = kwargs.pop('format', 'H:i d-m-Y')
@@ -134,8 +133,7 @@ class AuthorBookCountTable(tables.Table):
 
 class PurchaseTable(tables.Table):
     full_name = tables.Column(empty_values=(), verbose_name="full name")
-    title = tables.Column(empty_values=(), accessor="book.title")
-    author = tables.LinkColumn("author_detail", kwargs={"pk": tables.A("book.author.pk")}, empty_values=())
+    author = tables.LinkColumn("author_detail", kwargs={"pk": tables.A("book.author.pk")}, empty_values=(), accessor="book.author")
     author_country = tables.Column(empty_values=(), verbose_name="Author's Country")
     purchased_at = DateFormatGregorian(verbose_name='Purchase Date')
     jalali_date = DateTimeJalali(accessor='purchased_at', verbose_name='Purchase Date (Jalali)')
@@ -143,7 +141,7 @@ class PurchaseTable(tables.Table):
 
     class Meta:
         model = Purchase
-        fields = ["full_name", "title", 'price_formatted', "purchased_at", 'jalali_date']
+        fields = ["full_name", "book__title", 'price_formatted', "purchased_at", 'jalali_date']
         attrs = {'class': 'table table-striped table-hover'}
 
     def render_full_name(self, record):
@@ -161,9 +159,9 @@ class PurchaseTable(tables.Table):
     # def render_title(self, record):
     #     return record.book.title
 
-    def render_author(self, record):
-        author = record.book.author
-        return f'{author.first_name} {author.last_name}'
+    # def render_author(self, record):
+    #     author = record.book.author
+    #     return f'{author.first_name} {author.last_name}'
 
     def render_author_country(self, record):
         return record.book.author.country.name
