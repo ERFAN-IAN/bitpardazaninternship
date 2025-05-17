@@ -134,14 +134,14 @@ class AuthorBookCountTable(tables.Table):
 class PurchaseTable(tables.Table):
     full_name = tables.Column(empty_values=(), verbose_name="full name")
     author = tables.LinkColumn("author_detail", kwargs={"pk": tables.A("book.author.pk")}, empty_values=(), accessor="book.author")
-    author_country = tables.Column(empty_values=(), verbose_name="Author's Country")
+    author_country = tables.Column(empty_values=(), verbose_name="Author's Country", accessor="book__author__country__name")
     purchased_at = DateFormatGregorian(verbose_name='Purchase Date')
     jalali_date = DateTimeJalali(accessor='purchased_at', verbose_name='Purchase Date (Jalali)')
     price_formatted = CurrencyColumn(accessor='price')
 
     class Meta:
         model = Purchase
-        fields = ["full_name", "book__title", 'price_formatted', "purchased_at", 'jalali_date']
+        fields = ["full_name", "book__title", 'price_formatted', "purchased_at", 'jalali_date' ]
         attrs = {'class': 'table table-striped table-hover'}
 
     def render_full_name(self, record):
@@ -162,9 +162,9 @@ class PurchaseTable(tables.Table):
     # def render_author(self, record):
     #     author = record.book.author
     #     return f'{author.first_name} {author.last_name}'
-
-    def render_author_country(self, record):
-        return record.book.author.country.name
+    #
+    # def render_author_country(self, record):
+    #     return record.book.author.country.name
 
     # def render_jalali_date(self, record):
     #     return jdatetime.datetime.fromgregorian(date=record.purchased_at).strftime('%Y-%m-%d %H:%M')
