@@ -31,6 +31,11 @@ class CurrencyColumn(tables.Column):
             return value
 
 
+class BookTitileColumn(tables.Column):
+    def render(self, value):
+        return value
+
+
 class AuthorTable(tables.Table):
     full_name = tables.Column(empty_values=(), verbose_name="full name")
     detail = tables.LinkColumn("author_detail", kwargs={"pk": tables.A("pk")}, empty_values=(),
@@ -73,6 +78,7 @@ class AuthorBooksTable(tables.Table):
     delete = tables.LinkColumn("delete_book", kwargs={"pk": tables.A("pk")}, empty_values=())
     purchase = tables.LinkColumn('purchase_page', kwargs={"pk": tables.A("pk")}, empty_values=())
     price = CurrencyColumn(accessor="price")
+
     class Meta:
         model = Book
         fields = ("title", "publication_year", "category", "image", "release_date", 'price')
@@ -127,7 +133,7 @@ class AuthorBookCountTable(tables.Table):
 
 class PurchaseTable(tables.Table):
     full_name = tables.Column(empty_values=(), verbose_name="full name")
-    title = tables.Column(empty_values=())
+    title = BookTitileColumn(empty_values=(), accessor="book.title")
     author = tables.LinkColumn("author_detail", kwargs={"pk": tables.A("book.author.pk")}, empty_values=())
     author_country = tables.Column(empty_values=(), verbose_name="Author's Country")
     purchased_at = DateFormatGregorian(verbose_name='Purchase Date')
@@ -151,8 +157,8 @@ class PurchaseTable(tables.Table):
             customer = f'{first_name} {last_name}'
         return customer
 
-    def render_title(self, record):
-        return record.book.title
+    # def render_title(self, record):
+    #     return record.book.title
 
     def render_author(self, record):
         author = record.book.author
