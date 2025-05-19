@@ -1,14 +1,12 @@
+{% extends 'base.html' %}
+{% block head %}
 
-
-<!DOCTYPE html>
-<html>
-<head>
     <title>tree view of books and authors</title>
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/jstree@3.3.12/dist/themes/default/style.min.css" />
     <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/jstree@3.3.12/dist/jstree.min.js"></script>
-</head>
-<body>
+{% endblock head %}
+{% block content %}
     <h2>Tree View</h2>
     <div id="tree-container"></div>
     <script>
@@ -21,8 +19,7 @@
             });
         });
     </script>
-</body>
-</html>
+{% endblock content %}
 {##}
 {#    <script>#}
 {#        $(function() {#}

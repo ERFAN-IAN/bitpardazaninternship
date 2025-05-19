@@ -1,30 +1,26 @@
-<!DOCTYPE html>
-<html lang="en">
-<head>
-    <meta charset="UTF-8">
-    <title>Pie Chart</title>
-    <script src="https://code.highcharts.com/highcharts.js"></script>
-</head>
-<body>
-    <h2>Books Per Author</h2>
-    <div id="pie-container" style="width: 600px; height: 400px;"></div>
+{% extends 'base.html' %}
+{% load static %}
 
-    <script>
-        document.addEventListener("DOMContentLoaded", function () {
-            Highcharts.chart('pie-container', {
-                chart: {
-                    type: 'pie'
-                },
-                title: {
-                    text: 'Books per Author'
-                },
-                series: [{
-                    name: 'Books',
-                    colorByPoint: true,
-                    data: {{ chart_data|safe }}
-                }]
-            });
-        });
-    </script>
-</body>
-</html>
+{% block content %}
+<h2>Books Per Author</h2>
+<div id="pie-container" style="width: 600px; height: 400px;"></div>
+
+<script src="https://code.highcharts.com/highcharts.js"></script>
+<script>
+document.addEventListener("DOMContentLoaded", function () {
+    Highcharts.chart('pie-container', {
+        chart: {
+            type: 'pie'
+        },
+        title: {
+            text: 'Books per Author'
+        },
+        series: [{
+            name: 'Books',
+            colorByPoint: true,
+            data: {{ chart_data|safe }}
+        }]
+    });
+});
+</script>
+{% endblock content %}

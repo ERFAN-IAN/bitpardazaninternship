@@ -1,9 +1,5 @@
-<!DOCTYPE html>
-<html>
-<head>
-    <title>Welcome</title>
-</head>
-<body>
+{% extends 'base.html' %}
+{% block content %}
     <h2>Welcome {{ username }}!</h2>
     <p>All the users: </p>
     <ul>
@@ -11,7 +7,5 @@
         <li>{{ user.username }}</li>
     {% endfor %}
     </ul>
-    <a href="{% url 'logout' %}">logout</a>
-    <a href={% url "home" %} >Home</a>
-</body>
-</html>
+{% endblock content %}
+

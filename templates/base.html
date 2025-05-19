@@ -11,6 +11,8 @@
     <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
     <title>{% block title %}{% endblock title %}</title>
+    {% block head %}
+    {% endblock head %}
   </head>
   <body>
   {% if messages %}
@@ -20,7 +22,34 @@
     {% endfor %}
   </ul>
 {% endif %}
+    <header style="display: grid;grid-template-columns: 1fr 1fr 1fr; justify-items: center; align-items: center;padding: 0.5rem; border-bottom: #1b1b1b solid 1px; margin-bottom: 1rem">
+        <div></div>
+        <div style="font-weight: bold;">
+          <a href="{% url 'home' %}" style="text-decoration: none; color: black; font-size: large">EA Systems</a>
+        </div>
 
+        <div style="display: flex; gap: 1rem; align-items: center;">
+            {% if request.user.is_authenticated %}
+                <p style="margin: 0">Hey {{ request.user }}!</p>
+                <button
+                  style="border-radius: 0.5rem; background-color: beige; color: black; border: none; padding: 0.5rem 1rem; cursor: pointer; transition: all; transition-duration: 100ms"
+                  onmouseover="this.style.backgroundColor='#333333'; this.style.color='white';"
+                  onmouseout="this.style.backgroundColor='beige'; this.style.color='black';">
+                  <a href="{% url 'logout' %}" style="text-decoration: none; color: inherit;">Logout</a>
+                </button>
+            {% endif %}
+            {% if not request.user.is_authenticated %}
+
+                <button
+                  style="border-radius: 0.5rem; background-color: beige; color: black; border: none; padding: 0.5rem 1rem; cursor: pointer; transition: all; transition-duration: 100ms"
+                  onmouseover="this.style.backgroundColor='#333333'; this.style.color='white';"
+                  onmouseout="this.style.backgroundColor='beige'; this.style.color='black';">
+                  <a href="{% url 'login' %}" style="text-decoration: none; color: inherit;">Login</a>
+                </button>
+
+            {% endif %}
+        </div>
+    </header>
     <main>{% block content %}{% endblock content %}</main>
   </body>
 </html>

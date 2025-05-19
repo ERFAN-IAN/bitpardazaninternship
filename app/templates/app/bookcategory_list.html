@@ -1,4 +1,6 @@
+{% extends 'base.html' %}
 {% load group_tags %}
+{% block content %}
 <h2>Categories</h2>
 <ul>
     {% for category in object_list %}
@@ -23,4 +25,4 @@
 {% endif %}
 
 
-<a href="{% url 'home' %}">Home</a>
+{% endblock content %}

@@ -1,4 +1,7 @@
+{% extends 'base.html' %}
 {% load group_tags %}
+
+{% block content %}
 <form method="post" action="">
   {% csrf_token %} {{form}}
   <button type="submit">Submit</button>
@@ -6,3 +9,4 @@
         <button><a href="{% url 'delete_author' author.id %}">Delete</a></button>
     {% endif %}
 </form>
+{% endblock content %}

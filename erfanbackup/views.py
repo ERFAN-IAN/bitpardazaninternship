@@ -223,15 +223,6 @@ class AuthorBookPieView(TemplateView):
         return context
 
 
-# class AuthorSlickView(TemplateView):
-#     template_name = "app/authorslick.html"
-#
-#     def get_context_data(self, **kwargs):
-#         context = super().get_context_data(**kwargs)
-#         context['form'] = None
-#         return context
-
-
 class IndexView(LoginRequiredMixin, TemplateView):
     template_name = 'app/index.html'
 

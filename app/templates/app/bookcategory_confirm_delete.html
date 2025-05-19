@@ -1,6 +1,9 @@
+{% extends 'base.html' %}
+{% block content %}
 <h2>Are you sure you want to delete {{ object.title }} category?</h2>
 <form method="post">
     {% csrf_token %}
     <button type="submit">Yes, delete</button>
 </form>
 <a href="{% url 'bookcategory_list' %}">Cancel</a>
+{% endblock content %}
