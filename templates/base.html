@@ -195,7 +195,7 @@
                         <i class="fa fa-cogs" style="margin-right: 0.5rem;"></i>Admin Tools
                     </span>
                     <ul style="list-style: none; padding-left: 1.2rem; margin-top: 0.5rem;">
-                        {% if rrequest.user.is_superuser %}
+                        {% if request.user.is_superuser %}
                             <li>
                                 <a href="/admin/" style="text-decoration: none; color: inherit;">Django Admin</a>
                             </li>
