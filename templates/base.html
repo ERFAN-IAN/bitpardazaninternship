@@ -26,49 +26,79 @@
     {% endfor %}
   </ul>
 {% endif %}
-    <header style="display: grid;grid-template-columns: 1fr 1fr 1fr; justify-items: center; align-items: center;padding: 0.5rem; border-bottom: #1b1b1b solid 1px; margin-bottom: 1rem">
-        <div style="display: grid; grid-template-columns: 1fr 1fr 1fr; width: 100%; align-items: center">
-            <i id="sidebarToggle" class="fa fa-bars" style="padding-left: 1rem; cursor: pointer"></i>
-            <div style="display: flex; width: 100%; font-weight: bold; margin: 0; gap: .2rem">
-                <p style="margin: 0">Balance:</p>
-                <p style="margin: 0">  {{ request.user.profile.balance|intcomma }}</p>
+    <header style="
+        display: grid;
+        grid-template-columns: 1fr 1fr 1fr;
+        justify-items: center;
+        align-items: center;
+        padding: 0.5rem 1rem;
+        border-bottom: 1px solid rgba(27, 27, 27, 0.3);
+        margin-bottom: 1rem;
+
+        background: rgba(255, 255, 255, 0.15);
+        backdrop-filter: blur(10px);
+        -webkit-backdrop-filter: blur(10px);
+        box-shadow: 0 4px 30px rgba(0, 0, 0, 0.1);
+        border-radius: 0 0 15px 15px;
+        color: #000;
+        font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen,
+                     Ubuntu, Cantarell, 'Open Sans', 'Helvetica Neue', sans-serif;
+        z-index: 1000;
+    ">
+
+        <!-- Left section: Hamburger + Balance -->
+        <div style="display: grid; grid-template-columns: auto 1fr auto; width: 100%; align-items: center; gap: 0.5rem;">
+            <i id="sidebarToggle" class="fa fa-bars" style="padding-left: 1rem; cursor: pointer; font-size: 1.4rem; color: #333;"></i>
+            <div style="display: flex; align-items: center; font-weight: 600; gap: 0.3rem; color: #222;">
+                {% if request.user.is_authenticated %}
+                    <p style="margin: 0; white-space: nowrap;">Balance:</p>
+                    <p style="margin: 0;">{{ request.user.profile.balance|intcomma }}</p>
+                {% endif %}
             </div>
             <div></div>
         </div>
-        <div style="font-weight: bold;">
-          <a href="{% url 'home' %}" style="text-decoration: none; color: black; font-size: large">EA Systems</a>
+
+        <!-- Center section: Logo -->
+        <div style="font-weight: 700; font-size: 1.25rem; color: #111;">
+            <a href="{% url 'home' %}" style="text-decoration: none; color: inherit;">EA Systems</a>
         </div>
 
-        <div style="display: flex; gap: 1rem; align-items: center;">
+        <!-- Right section: User info and actions -->
+        <div style="display: flex; gap: 1rem; align-items: center; justify-content: flex-end; margin-left: auto; padding-right: 1rem">
+
             {% if request.user.is_authenticated %}
-                <p style="margin: 0">Hey {{ request.user }}!</p>
-                <button
-                  style="border-radius: 0.5rem; background-color: beige; color: black; border: none; padding: 0.5rem 1rem; cursor: pointer; transition: all; transition-duration: 100ms"
-                  onmouseover="this.style.backgroundColor='#333333'; this.style.color='white';"
-                  onmouseout="this.style.backgroundColor='beige'; this.style.color='black';">
-                  <a href="{% url 'userprofile' request.user.profile.id %}" style="text-decoration: none; color: inherit;">Profile</a>
-                </button>
-                <img src="{% if request.user.profile.avatar %}{{ user.profile.avatar.url }}{% else %}{% static 'images/default_avatar.webp' %}{% endif %}" alt="User Avatar" style="width: 2.5rem; border-radius: 100%; height: 2.5rem ;object-fit: cover">
+                <p style="margin: 0; font-weight: 600; color: #222;">Hey {{ request.user }}!</p>
 
-                <button
-                  style="border-radius: 0.5rem; background-color: beige; color: black; border: none; padding: 0.5rem 1rem; cursor: pointer; transition: all; transition-duration: 100ms"
-                  onmouseover="this.style.backgroundColor='#333333'; this.style.color='white';"
-                  onmouseout="this.style.backgroundColor='beige'; this.style.color='black';">
-                  <a href="{% url 'logout' %}" style="text-decoration: none; color: inherit;">Logout</a>
-                </button>
+                <a href="{% url 'userprofile' request.user.profile.id %}"
+                   style="border-radius: 0.5rem; background-color: beige; color: black; border: none; padding: 0.5rem 1rem; cursor: pointer; transition: background-color 100ms, color 100ms; text-decoration: none; display: inline-block; font-weight: 500;"
+                   onmouseover="this.style.backgroundColor='#333333'; this.style.color='white';"
+                   onmouseout="this.style.backgroundColor='beige'; this.style.color='black';">
+                    Profile
+                </a>
+
+                <img src="{% if request.user.profile.avatar %}{{ request.user.profile.avatar.url }}{% else %}{% static 'images/default_avatar.webp' %}{% endif %}" alt="User Avatar"
+                     style="width: 2.5rem; height: 2.5rem; border-radius: 50%; object-fit: cover; border: 1px solid #ccc;">
+
+                <a href="{% url 'logout' %}"
+                   style="border-radius: 0.5rem; background-color: beige; color: black; border: none; padding: 0.5rem 1rem; cursor: pointer; transition: background-color 100ms, color 100ms; text-decoration: none; display: inline-block; font-weight: 500;"
+                   onmouseover="this.style.backgroundColor='#333333'; this.style.color='white';"
+                   onmouseout="this.style.backgroundColor='beige'; this.style.color='black';">
+                    Logout
+                </a>
+            {% else %}
+                <a href="{% url 'login' %}"
+                   style="border-radius: 0.5rem; background-color: beige; color: black; border: none; padding: 0.5rem 1rem; cursor: pointer; transition: background-color 100ms, color 100ms; text-decoration: none; display: inline-block; font-weight: 500;"
+                   onmouseover="this.style.backgroundColor='#333333'; this.style.color='white';"
+                   onmouseout="this.style.backgroundColor='beige'; this.style.color='black';">
+                    Login
+                </a>
             {% endif %}
-            {% if not request.user.is_authenticated %}
 
-                <button
-                  style="border-radius: 0.5rem; background-color: beige; color: black; border: none; padding: 0.5rem 1rem; cursor: pointer; transition: all; transition-duration: 100ms"
-                  onmouseover="this.style.backgroundColor='#333333'; this.style.color='white';"
-                  onmouseout="this.style.backgroundColor='beige'; this.style.color='black';">
-                  <a href="{% url 'login' %}" style="text-decoration: none; color: inherit;">Login</a>
-                </button>
-
-            {% endif %}
         </div>
+
+
     </header>
+
 
 
     <div id="sidebar" style="
