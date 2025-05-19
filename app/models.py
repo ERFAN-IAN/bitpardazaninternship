@@ -64,6 +64,7 @@ class UserProfile(models.Model):
     father_name = models.CharField(max_length=150, null=True, blank=True, default=None)
     balance = models.DecimalField(decimal_places=2, default=Decimal('0.00'), max_digits=12)
     phone_number = PhoneNumberField(null=True, unique=True)
+    avatar = models.ImageField(null=True, upload_to="avatars/", blank=True)
 
     def __str__(self):
         return f"Profile of {self.user.username}"

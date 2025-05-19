@@ -35,6 +35,14 @@
                   style="border-radius: 0.5rem; background-color: beige; color: black; border: none; padding: 0.5rem 1rem; cursor: pointer; transition: all; transition-duration: 100ms"
                   onmouseover="this.style.backgroundColor='#333333'; this.style.color='white';"
                   onmouseout="this.style.backgroundColor='beige'; this.style.color='black';">
+                  <a href="{% url 'userprofile' request.user.profile.id %}" style="text-decoration: none; color: inherit;">Profile</a>
+                </button>
+                <img src="{% if request.user.profile.avatar %}{{ user.profile.avatar.url }}{% else %}{% static 'images/default_avatar.webp' %}{% endif %}" alt="User Avatar" style="width: 2.5rem; border-radius: 100%">
+
+                <button
+                  style="border-radius: 0.5rem; background-color: beige; color: black; border: none; padding: 0.5rem 1rem; cursor: pointer; transition: all; transition-duration: 100ms"
+                  onmouseover="this.style.backgroundColor='#333333'; this.style.color='white';"
+                  onmouseout="this.style.backgroundColor='beige'; this.style.color='black';">
                   <a href="{% url 'logout' %}" style="text-decoration: none; color: inherit;">Logout</a>
                 </button>
             {% endif %}

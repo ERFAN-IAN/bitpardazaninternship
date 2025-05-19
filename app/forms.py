@@ -2,9 +2,17 @@ from django import forms
 from django.contrib.auth.forms import UserCreationForm
 from django.contrib.auth.models import User
 from django_select2.forms import Select2Widget
-from .models import Book, BookCategory, Author
+from .models import Book, BookCategory, Author, UserProfile
 from django_select2.forms import ModelSelect2Widget, Select2MultipleWidget
 from phonenumber_field.formfields import PhoneNumberField
+from django.forms.widgets import ClearableFileInput
+
+
+class CustomClearableFileInput(ClearableFileInput):
+    template_name = 'app/customformuserprofile.html'
+    initial_text = ''  # Remove "Currently:"
+    input_text = 'Change'  # Customize input label
+    clear_checkbox_label = 'Remove'  # Customize clear checkbox label
 
 
 class UserSignupForm(UserCreationForm):
@@ -171,3 +179,12 @@ class TestForm(forms.ModelForm):
         model = Book
         fields = ["title", "release_date", "author", "category", "image"]
         widgets = {'category': Select2MultipleWidget()}
+
+
+class UserProfileForm(forms.ModelForm):
+    class Meta:
+        model = UserProfile
+        fields = ['avatar']
+        widgets = {
+            'avatar': CustomClearableFileInput,
+        }

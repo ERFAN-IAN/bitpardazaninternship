@@ -8,7 +8,7 @@ from django.views.generic import (
     FormView
 )
 from .forms import UserSignupForm, BookForm, BookFormSingleNoAjax, BookFormSingleAjax, BookSelectForm, \
-    ForgotPasswordForm, ConfirmCodeForm, SmsConfirmCodeForm, TestForm
+    ForgotPasswordForm, ConfirmCodeForm, SmsConfirmCodeForm, TestForm, UserProfileForm
 from braces.views import GroupRequiredMixin
 from django.utils.dateparse import parse_datetime
 from django.urls import reverse_lazy, reverse
@@ -727,3 +727,12 @@ class PurchaseView(ExportMixin, SingleTableView):
     model = Purchase
     table_class = PurchaseTable
     template_name = "app/purchaselist.html"
+
+
+class UserProfileView(UpdateView):
+    model = UserProfile
+    template_name = 'app/userprofile.html'
+    form_class = UserProfileForm
+
+    def get_success_url(self):
+        return reverse("userprofile", kwargs={"pk": self.object.id})
