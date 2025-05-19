@@ -1,4 +1,5 @@
 {% load static %}
+{% load humanize %}
 <!DOCTYPE html>
 <html lang="en">
   <head>
@@ -23,7 +24,12 @@
   </ul>
 {% endif %}
     <header style="display: grid;grid-template-columns: 1fr 1fr 1fr; justify-items: center; align-items: center;padding: 0.5rem; border-bottom: #1b1b1b solid 1px; margin-bottom: 1rem">
-        <div></div>
+        <div>
+            <div style="display: flex; justify-content: space-between; width: 100%; font-weight: bold; margin: 0; gap: .2rem">
+                <p style="margin: 0">Balance:</p>
+                <p style="margin: 0">  {{ request.user.profile.balance|intcomma }}</p>
+            </div>
+        </div>
         <div style="font-weight: bold;">
           <a href="{% url 'home' %}" style="text-decoration: none; color: black; font-size: large">EA Systems</a>
         </div>
