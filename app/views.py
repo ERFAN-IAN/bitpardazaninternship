@@ -15,7 +15,7 @@ from django.urls import reverse_lazy, reverse
 from .models import Author, Book, BookCategory, UserProfile, Purchase, PasswordResetCode
 from django.db.models import Q, Count
 from django.shortcuts import get_object_or_404, redirect
-from django_tables2 import SingleTableView
+from django_tables2 import SingleTableView, SingleTableMixin
 from .tables import AuthorBooksTable, AuthorTable, AuthorBookCountTable, PurchaseTable
 from django_tables2.export.views import ExportMixin
 from django_filters.views import FilterView
@@ -98,20 +98,18 @@ class AuthorDeleteView(GroupRequiredMixin, DeleteView):
     group_required = ['Admin']
 
 
-class AuthorDetailView(DetailView):
+class AuthorDetailView(SingleTableMixin, DetailView):
     model = Author
     template_name = "app/author_detail.html"
     context_object_name = "author"
+    table_class = AuthorBooksTable
 
-    def get_context_data(self, **kwargs):
-        context = super().get_context_data(**kwargs)
-        book_query = self.request.GET.get("q")
+    def get_table_data(self):
         books = self.object.books.all()
+        book_query = self.request.GET.get("q")
         if book_query:
             books = books.filter(title__icontains=book_query)
-        book_table = AuthorBooksTable(books)
-        context["book_table"] = book_table
-        return context
+        return books
 
 
 class BookCreateView(GroupRequiredMixin, CreateView):

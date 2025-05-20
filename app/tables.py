@@ -39,8 +39,8 @@ class CurrencyColumn(tables.Column):
 class AuthorTable(tables.Table):
     full_name = tables.Column(empty_values=(), verbose_name="full name")
     detail = tables.LinkColumn("author_detail", kwargs={"pk": tables.A("pk")}, empty_values=(),
-                               exclude_from_export=True)
-    icon = tables.Column(empty_values=(), verbose_name='Age State')
+                               exclude_from_export=True, orderable=False)
+    icon = tables.Column(empty_values=(), verbose_name='Age State', order_by="age")
     country = tables.Column(empty_values=())
 
     class Meta:
@@ -74,9 +74,9 @@ class AuthorTable(tables.Table):
 
 
 class AuthorBooksTable(tables.Table):
-    edit = tables.LinkColumn("edit_book", kwargs={"pk": tables.A("pk")}, empty_values=())
-    delete = tables.LinkColumn("delete_book", kwargs={"pk": tables.A("pk")}, empty_values=())
-    purchase = tables.LinkColumn('purchase_page', kwargs={"pk": tables.A("pk")}, empty_values=())
+    edit = tables.LinkColumn("edit_book", kwargs={"pk": tables.A("pk")}, empty_values=(), orderable=False)
+    delete = tables.LinkColumn("delete_book", kwargs={"pk": tables.A("pk")}, empty_values=(), orderable=False)
+    purchase = tables.LinkColumn('purchase_page', kwargs={"pk": tables.A("pk")}, empty_values=(), orderable=False)
     price = CurrencyColumn(accessor="price")
 
     class Meta:
@@ -132,7 +132,7 @@ class AuthorBookCountTable(tables.Table):
 
 
 class PurchaseTable(tables.Table):
-    full_name = tables.Column(empty_values=(), verbose_name="full name")
+    full_name = tables.Column(empty_values=(), verbose_name="full name", order_by=("user__first_name", "user__last_name", "user__username"))
     author = tables.LinkColumn("author_detail", kwargs={"pk": tables.A("book.author.pk")}, empty_values=(), accessor="book.author")
     author_country = tables.Column(empty_values=(), verbose_name="Author's Country", accessor="book__author__country__name")
     purchased_at = DateFormatGregorian(verbose_name='Purchase Date')
