@@ -6,6 +6,7 @@ from braces.views import GroupRequiredMixin
 
 
 class BookSalesReport(GroupRequiredMixin, ReportView):
+    template_name = "app/customslickreporting.html"
     report_model = Purchase
     date_field = "purchased_at"
     group_by = "book__title"
@@ -27,6 +28,7 @@ class BookSalesReport(GroupRequiredMixin, ReportView):
 
 
 class BookPublicationReport(GroupRequiredMixin, ReportView):
+    template_name = "app/customslickreporting.html"
     report_model = Book
     date_field = "release_date"
     group_by = "publication_year"
@@ -45,6 +47,7 @@ class BookPublicationReport(GroupRequiredMixin, ReportView):
 
 
 class AuthorByCountryReport(GroupRequiredMixin, ReportView):
+    template_name = "app/customslickreporting.html"
     report_model = Author
     group_by = "country__name"
     group_required = ['Admin']

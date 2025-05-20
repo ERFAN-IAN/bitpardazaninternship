@@ -10,7 +10,12 @@
     <meta http-equiv="X-UA-Compatible" content="IE=edge" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <link rel="stylesheet" href="{% static 'style.css' %}" />
-    <link href="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css" rel="stylesheet" />
+    {% if not request.path|slice:":7" == "/report" %}
+        {% comment %}
+            slick reporting uses boot strap 5, the style shifts without excluding bootstrap 4
+        {% endcomment %}
+        <link href="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css" rel="stylesheet" />
+    {% endif %}
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
     <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
@@ -135,6 +140,7 @@
 
 
     <main>{% block content %}{% endblock content %}</main>
+    {% block slick %}{% endblock slick %}
     <script>
         const toggleButton = document.getElementById('sidebarToggle');
         const sidebar = document.getElementById('sidebar');
