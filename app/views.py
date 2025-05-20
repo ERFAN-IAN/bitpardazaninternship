@@ -721,16 +721,21 @@ class TestView(UserPassesTestMixin, FormView):
         return self.request.user.is_superuser
 
 
-class PurchaseView(ExportMixin, SingleTableView):
+class PurchaseView(LoginRequiredMixin, ExportMixin, SingleTableView):
     model = Purchase
     table_class = PurchaseTable
     template_name = "app/purchaselist.html"
 
 
-class UserProfileView(UpdateView):
+class UserProfileView(LoginRequiredMixin, UpdateView):
     model = UserProfile
     template_name = 'app/userprofile.html'
     form_class = UserProfileForm
 
     def get_success_url(self):
         return reverse("userprofile", kwargs={"pk": self.object.id})
+
+    def dispatch(self, request, *args, **kwargs):
+        if request.user.profile.id != self.kwargs.get('pk'):
+            return redirect('/')
+        return super().dispatch(request, *args, **kwargs)

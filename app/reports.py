@@ -2,12 +2,14 @@ from slick_reporting.views import ReportView, Chart
 from slick_reporting.fields import ComputationField
 from django.db.models import Count, Sum, Avg
 from .models import Author, Book, Purchase
+from braces.views import GroupRequiredMixin
 
 
-class BookSalesReport(ReportView):
+class BookSalesReport(GroupRequiredMixin, ReportView):
     report_model = Purchase
     date_field = "purchased_at"
     group_by = "book__title"
+    group_required = ['Admin']
     columns = [
         "book__title",
         "book__author__first_name",
@@ -24,10 +26,11 @@ class BookSalesReport(ReportView):
     ]
 
 
-class BookPublicationReport(ReportView):
+class BookPublicationReport(GroupRequiredMixin, ReportView):
     report_model = Book
     date_field = "release_date"
     group_by = "publication_year"
+    group_required = ['Admin']
     columns = [
         "publication_year",
         ComputationField.create(Sum, "price", name="price__sum", verbose_name="Total Price ($)"),
@@ -35,15 +38,16 @@ class BookPublicationReport(ReportView):
     ]
 
     chart_settings = [
-        Chart("Total Price by Publication Year", Chart.LINE, data_source=["price__sum"], title_source=["publication_year"]),
+        Chart("Total Price by Publication Year", Chart.LINE, data_source=["price__sum"],
+              title_source=["publication_year"]),
         Chart("Books Published per Year", Chart.BAR, data_source=["id__count"], title_source=["publication_year"]),
     ]
 
 
-
-class AuthorByCountryReport(ReportView):
+class AuthorByCountryReport(GroupRequiredMixin, ReportView):
     report_model = Author
-    group_by = "country__name"  # Group authors by their country name
+    group_by = "country__name"
+    group_required = ['Admin']
     columns = [
         "country__name",
         ComputationField.create(Count, "id", name="author_count", verbose_name="Number of Authors"),
@@ -64,4 +68,3 @@ class AuthorByCountryReport(ReportView):
             title_source=["country__name"],
         ),
     ]
-
