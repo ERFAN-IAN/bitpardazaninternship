@@ -1,4 +1,4 @@
-from django_filters import FilterSet, ModelChoiceFilter, ModelMultipleChoiceFilter, CharFilter
+from django_filters import FilterSet, ModelChoiceFilter, ModelMultipleChoiceFilter, CharFilter, BooleanFilter
 from .models import Author, Book, BookCategory, Purchase
 from django_select2.forms import ModelSelect2Widget, ModelSelect2MultipleWidget
 from django.db.models import Q
@@ -52,6 +52,13 @@ class BookFilter(FilterSet):
 
 
 class PurchaseFilter(FilterSet):
+    is_expensive = BooleanFilter(method="filter_expensive", label="Is Expensive")
+
+    def filter_expensive(self, queryset, name, value):
+        if value:
+            return queryset.filter(price__gt=100)
+        return queryset
+
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
         user_groups = self.request.user.groups.values_list('name', flat=True)
