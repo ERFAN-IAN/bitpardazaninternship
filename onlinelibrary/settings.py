@@ -59,7 +59,8 @@ DJANGO_APPS = [
     'two_factor.plugins.phonenumber',
     'django_countries',
     'django.contrib.humanize',
-    'sitetree'
+    'sitetree',
+    'django_filters'
 
 ]
 LOCAL_APPS = [
