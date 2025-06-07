@@ -133,6 +133,7 @@ class AuthorBookCountTable(tables.Table):
 
 class PurchaseTable(tables.Table):
     full_name = tables.Column(empty_values=(), verbose_name="full name", order_by=("user__first_name", "user__last_name", "user__username"))
+    user_name = tables.Column(empty_values=(), verbose_name="Username", accessor="user__username")
     author = tables.LinkColumn("author_detail", kwargs={"pk": tables.A("book.author.pk")}, empty_values=(), accessor="book.author")
     author_country = tables.Column(empty_values=(), verbose_name="Author's Country", accessor="book__author__country__name")
     purchased_at = DateFormatGregorian(verbose_name='Purchase Date')
@@ -141,7 +142,7 @@ class PurchaseTable(tables.Table):
 
     class Meta:
         model = Purchase
-        fields = ["full_name", "book__title", 'price_formatted', "purchased_at", 'jalali_date' ]
+        fields = ["full_name", "user_name","book__title", 'price_formatted', "purchased_at", 'jalali_date' ]
         attrs = {'class': 'table table-striped table-hover'}
 
     def render_full_name(self, record):

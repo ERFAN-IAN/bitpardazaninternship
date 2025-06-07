@@ -4,6 +4,12 @@
 {% load render_table from django_tables2 %}
 {% block content %}
 <section>
+    <div style="width: 100%; display: flex; justify-content: center">
+        <form method="get">
+            {{ filter.form }}
+            <button type="submit">Filter</button>
+        </form>
+    </div>
     {% render_table table %}
 
     {% if request.get_full_path == "/purchaselist/" %}

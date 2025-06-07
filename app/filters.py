@@ -1,9 +1,8 @@
 from django_filters import FilterSet, ModelChoiceFilter, ModelMultipleChoiceFilter, CharFilter
-from .models import Author, Book, BookCategory
+from .models import Author, Book, BookCategory, Purchase
 from django_select2.forms import ModelSelect2Widget, ModelSelect2MultipleWidget
 from django.db.models import Q
 from django.forms.widgets import TextInput
-
 
 class BookCategoryWidget(ModelSelect2MultipleWidget):
     model = BookCategory
@@ -50,3 +49,15 @@ class BookFilter(FilterSet):
     class Meta:
         model = Book
         fields = {'title': ['contains']}
+
+
+class PurchaseFilter(FilterSet):
+    def __init__(self, *args, **kwargs):
+        super().__init__(*args, **kwargs)
+        user_groups = self.request.user.groups.values_list('name', flat=True)
+        if "Operator" in user_groups:
+            self.filters.pop('user__username__icontains')
+
+    class Meta:
+        model = Purchase
+        fields = {"book__title": ['icontains'], "user__username": ['icontains']}

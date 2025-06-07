@@ -20,7 +20,7 @@ from .tables import AuthorBooksTable, AuthorTable, AuthorBookCountTable, Purchas
 from django_tables2.export.views import ExportMixin
 from django_filters.views import FilterView
 from django_tables2.views import MultiTableMixin
-from .filters import AuthorFilter, BookFilter
+from .filters import AuthorFilter, BookFilter, PurchaseFilter
 import json
 from django.contrib.auth.mixins import LoginRequiredMixin
 from django.contrib.auth.models import User, Group
@@ -710,12 +710,13 @@ class TestView(UserPassesTestMixin, FormView):
         return self.request.user.is_superuser
 
 
-class PurchaseView(LoginRequiredMixin, ExportMixin, SingleTableView):
+class PurchaseView(LoginRequiredMixin, ExportMixin, SingleTableMixin, FilterView):
     model = Purchase
     table_class = PurchaseTable
     template_name = "app/purchaselist.html"
+    filterset_class = PurchaseFilter
 
-    def get_table_data(self):
+    def get_queryset(self, *args, **kwargs):
         user_groups = self.request.user.groups.values_list('name', flat=True)
         if "Operator" in user_groups:
             return Purchase.objects.filter(user__username=self.request.user.username)
