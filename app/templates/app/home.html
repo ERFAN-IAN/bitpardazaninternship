@@ -6,42 +6,15 @@
 {% block content %}
 <section>
 
-
-  <form method="get" action="" class="flexcenter">
-    <input
-      type="text"
-      name="q"
-      placeholder="Search authors..."
-      value="{{ request.GET.q }}"
-    />
-    <button type="submit">Search</button>
-  </form>
-
 </section>
+    <div style="width: 100%; display: flex; justify-content: center">
         <form method="get">
             {{ filter.form }}
             <button type="submit">Filter</button>
         </form>
-{#<section>#}
-
-{##}
-{#  {% for author in authors %}#}
-{#  <article class="gridrow">#}
-{#    <p>{{author.first_name}}</p>#}
-{#    <p>{{author.last_name}}</p>#}
-{#    <p>{{author.age}}</p>#}
-{#    <p>{{author.national_id}}</p>#}
-{##}
-{#    <button><a href="{% url 'author_detail' author.id %}">Details</a></button>#}
-{#  </article>#}
-{##}
-{#  {% endfor %}#}
+    </div>
 {% render_table table %}
     <section style="display: flex;flex-direction: column; gap: 2rem">
-
-
-
-
         {% if request.get_full_path == "/" %}
             <a href="/?_export=csv">Download the table</a>
         {% else %}

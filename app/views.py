@@ -51,23 +51,12 @@ from django.contrib.auth.mixins import UserPassesTestMixin
 # Create your views here.
 
 
-class AuthorListView(FilterView, ExportMixin, SingleTableView):
+class AuthorListView(ExportMixin, SingleTableMixin, FilterView):
     model = Author
     template_name = "app/home.html"
     table_class = AuthorTable
     context_object_name = "authors"
     filterset_class = AuthorFilter
-
-    def get_queryset(self):
-        query = self.request.GET.get("q")
-        print(query)
-        if query:
-            return Author.objects.filter(
-                Q(first_name__icontains=query)
-                | Q(last_name__icontains=query)
-                | Q(national_id__icontains=query)
-            )
-        return Author.objects.all()
 
 
 class AuthorCreateView(GroupRequiredMixin, CreateView):
