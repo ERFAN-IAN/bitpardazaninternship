@@ -715,6 +715,12 @@ class PurchaseView(LoginRequiredMixin, ExportMixin, SingleTableView):
     table_class = PurchaseTable
     template_name = "app/purchaselist.html"
 
+    def get_table_data(self):
+        user_groups = self.request.user.groups.values_list('name', flat=True)
+        if "Operator" in user_groups:
+            return Purchase.objects.filter(user__username=self.request.user.username)
+        return Purchase.objects.all()
+
 
 class UserProfileView(LoginRequiredMixin, UpdateView):
     model = UserProfile
