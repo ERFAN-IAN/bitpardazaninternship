@@ -105,6 +105,14 @@ class BookFormSingleAjax(forms.ModelForm):
             Submit('submit', 'submit', css_class='btn-primary'),
         )
 
+    def clean_image(self):
+        max_size = 10 * 1024 * 1024
+        image = self.cleaned_data["image"]
+        if image:
+            if image.size > max_size:
+                raise forms.ValidationError("Image should be smaller than 10MB!")
+        return image
+
 
 class BookSelectForm(forms.Form):
     author = forms.ModelChoiceField(
