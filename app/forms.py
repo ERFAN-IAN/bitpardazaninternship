@@ -12,6 +12,11 @@ from django.core.validators import MinLengthValidator, ValidationError, BaseVali
 from django.utils.translation import gettext_lazy as _
 import datetime
 
+COLOR_TYPE_CHOICES = [
+    ('bw', 'Black and White'),
+    ('mono', 'Monochrome'),
+    ('color', 'FullColor'),
+]
 class CustomClearableFileInput(ClearableFileInput):
     template_name = 'app/customformuserprofile.html'
     initial_text = ''  # Remove "Currently:"
@@ -82,9 +87,11 @@ class BookFormSingleAjax(forms.ModelForm):
     )
     title = forms.CharField(validators=[MinLengthValidator(5, 'Title should be at least 5 characters long')])
     price = forms.DecimalField(validators=[MinMaxValidator(10, 1000)])
+    color_format = forms.ChoiceField(choices=COLOR_TYPE_CHOICES, widget=forms.RadioSelect)
+
     class Meta:
         model = Book
-        fields = ["title", "release_date", "category", "image", "price"]
+        fields = ["title", "release_date", "category", "image", "price", "color_format"]
         widgets = {
             'category': CategoryAjaxWidget(
                 attrs={'data-placeholder': 'Select a category', 'style': 'width: 100%;'}
@@ -106,7 +113,8 @@ class BookFormSingleAjax(forms.ModelForm):
                 "release_date",
                 "category",
                 "image",
-                "price"
+                "price",
+                "color_format"
             ),
             Submit('submit', 'submit', css_class='btn-primary'),
         )
@@ -255,4 +263,3 @@ class ContactusForm(forms.Form):
             ),
             Submit('submit', 'Send Email', css_class='btn-primary'),
         )
-

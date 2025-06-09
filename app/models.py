@@ -14,7 +14,6 @@ def validate_publication_year(value):
             f"Publication year can't be in the future (max {current_year})."
         )
 
-
 class Country(models.Model):
     name = models.CharField(max_length=100)
 
@@ -49,6 +48,7 @@ class Book(models.Model):
     image = models.ImageField(upload_to="books/", null=True, blank=True)
     release_date = models.DateTimeField()
     price = models.DecimalField(decimal_places=2, max_digits=12)
+    color_format = models.CharField(max_length=100)
 
     def save(self, *args, **kwargs):
         if self.release_date:
