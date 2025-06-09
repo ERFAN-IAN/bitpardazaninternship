@@ -115,6 +115,11 @@ class BookCreateView(GroupRequiredMixin, CreateView):
     def get_success_url(self):
         return reverse("author_detail", kwargs={"pk": self.kwargs["pk"]})
 
+    def get_form_kwargs(self, *args, **kwargs):
+        kwargs = super().get_form_kwargs(*args, **kwargs)
+        kwargs.update({'user': self.request.user})
+        return kwargs
+
 
 class BookUpdateView(GroupRequiredMixin, UpdateView):
     model = Book

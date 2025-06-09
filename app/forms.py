@@ -10,6 +10,7 @@ from crispy_forms.helper import FormHelper
 from crispy_forms.layout import Layout, Fieldset, Submit
 from django.core.validators import MinLengthValidator, ValidationError, BaseValidator
 from django.utils.translation import gettext_lazy as _
+import datetime
 
 class CustomClearableFileInput(ClearableFileInput):
     template_name = 'app/customformuserprofile.html'
@@ -91,11 +92,16 @@ class BookFormSingleAjax(forms.ModelForm):
         }
 
     def __init__(self, *args, **kwargs):
+        self.user = kwargs.pop('user', None)
         super(BookFormSingleAjax, self).__init__(*args, **kwargs)
         self.helper = FormHelper()
+        user_groups = self.user.groups.values_list('name', flat=True)
+        if "Admin" not in user_groups and not self.user.is_superuser:
+            self.fields['release_date'].widget = forms.HiddenInput()
+            self.fields['release_date'].initial = datetime.datetime.now()
         self.helper.layout = Layout(
             Fieldset(
-                'Add Book',
+                "Add Book",
                 "title",
                 "release_date",
                 "category",
