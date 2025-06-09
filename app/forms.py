@@ -8,6 +8,7 @@ from phonenumber_field.formfields import PhoneNumberField
 from django.forms.widgets import ClearableFileInput
 from crispy_forms.helper import FormHelper
 from crispy_forms.layout import Layout, Fieldset, Submit
+from django.core.validators import MinLengthValidator
 
 
 class CustomClearableFileInput(ClearableFileInput):
@@ -61,6 +62,7 @@ class BookFormSingleAjax(forms.ModelForm):
         widget=forms.DateTimeInput(attrs={'type': 'datetime-local'}),
         input_formats=['%Y-%m-%dT%H:%M']  # format expected from datetime-local input
     )
+    title = forms.CharField(validators=[MinLengthValidator(5, 'Title should be at least 5 characters long')])
 
     class Meta:
         model = Book
