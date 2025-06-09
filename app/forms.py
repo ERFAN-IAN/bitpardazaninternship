@@ -6,6 +6,8 @@ from .models import Book, BookCategory, Author, UserProfile
 from django_select2.forms import ModelSelect2Widget, Select2MultipleWidget
 from phonenumber_field.formfields import PhoneNumberField
 from django.forms.widgets import ClearableFileInput
+from crispy_forms.helper import FormHelper
+from crispy_forms.layout import Layout, Fieldset, Submit
 
 
 class CustomClearableFileInput(ClearableFileInput):
@@ -68,6 +70,21 @@ class BookFormSingleAjax(forms.ModelForm):
                 attrs={'data-placeholder': 'Select a category', 'style': 'width: 100%;'}
             ),
         }
+
+    def __init__(self, *args, **kwargs):
+        super(BookFormSingleAjax, self).__init__(*args, **kwargs)
+        self.helper = FormHelper()
+        self.helper.layout = Layout(
+            Fieldset(
+                'Add Book',
+                "title",
+                "release_date",
+                "category",
+                "image",
+                "price"
+            ),
+            Submit('submit', 'submit', css_class='btn-primary'),
+        )
 
 
 class BookSelectForm(forms.Form):
