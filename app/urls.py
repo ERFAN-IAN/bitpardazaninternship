@@ -34,7 +34,8 @@ from .views import (
     Library2FALoginView,
     TestView,
     PurchaseView,
-    UserProfileView
+    UserProfileView,
+    ContactusFormView
 )
 from .reports import BookSalesReport, BookPublicationReport, AuthorByCountryReport
 
@@ -78,4 +79,5 @@ urlpatterns = [
     path('reports/book-publication/', BookPublicationReport.as_view(), name='book-publication-report'),
     path('reports/authors-by-country/', AuthorByCountryReport.as_view(), name='authors-by-country-report'),
     path('userprofile/<int:pk>/', UserProfileView.as_view(), name='userprofile'),
+    path('contactus/', ContactusFormView.as_view(), name='contactus'),
 ]

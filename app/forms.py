@@ -238,3 +238,21 @@ class UserProfileForm(forms.ModelForm):
         widgets = {
             'avatar': CustomClearableFileInput,
         }
+
+
+class ContactusForm(forms.Form):
+    author_name = forms.CharField(max_length=200, required=True)
+    message = forms.CharField(widget=forms.Textarea, required=True)
+
+    def __init__(self, *args, **kwargs):
+        super(ContactusForm, self).__init__(*args, **kwargs)
+        self.helper = FormHelper()
+        self.helper.layout = Layout(
+            Fieldset(
+                "Contact Us",
+                "author_name",
+                "message",
+            ),
+            Submit('submit', 'Send Email', css_class='btn-primary'),
+        )
+

@@ -173,3 +173,11 @@ TWO_FACTOR_SMS_GATEWAY = 'app.sms_gateway.KavenegarGateway'
 TWO_FACTOR_PATCH_ADMIN = False
 LOGOUT_REDIRECT_URL = '/'
 TWO_FACTOR_LOGIN_TIMEOUT = 120
+
+EMAIL_BACKEND = 'django.core.mail.backends.smtp.EmailBackend'
+EMAIL_HOST = 'localhost'
+EMAIL_PORT = 25
+EMAIL_HOST_USER = "admin@test.ir"
+EMAIL_HOST_PASSWORD = ""
+EMAIL_USE_TLS = False
+EMAIL_USE_SSL = False

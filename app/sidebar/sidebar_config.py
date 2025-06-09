@@ -187,6 +187,20 @@ sidebar_items = {
             "margin-top": "0.5rem"
         }
     },
+    "Contactus": {
+        "label": "Contact Us",
+        "url": "contactus",
+        "has_args": False,
+        "icon": "fa fa-envelope",
+        "icon_style": {"margin-right": "0.5rem"},
+        "permissions": [],
+        "css": {
+            "font-weight": "bold",
+            "font-size": "1rem",
+            "text-decoration": "none",
+            "color": "inherit",
+        }
+    },
     "Admin Tools": {
         "label": "Admin Tools",
         "icon": "fa fa-cogs",

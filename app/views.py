@@ -8,7 +8,7 @@ from django.views.generic import (
     FormView
 )
 from .forms import UserSignupForm, BookForm, BookFormSingleNoAjax, BookFormSingleAjax, BookSelectForm, \
-    ForgotPasswordForm, ConfirmCodeForm, SmsConfirmCodeForm, TestForm, UserProfileForm
+    ForgotPasswordForm, ConfirmCodeForm, SmsConfirmCodeForm, TestForm, UserProfileForm, ContactusForm
 from braces.views import GroupRequiredMixin
 from django.utils.dateparse import parse_datetime
 from django.urls import reverse_lazy, reverse
@@ -36,7 +36,7 @@ from django.contrib.auth import login
 from two_factor.views import LoginView as TwoFactorLoginView
 from datetime import timedelta
 from django.contrib.auth.mixins import UserPassesTestMixin
-
+from django.core.mail import EmailMessage
 
 # from django.views.generic.detail import SingleObjectMixin
 # from braces.views import SuperuserRequiredMixin
@@ -740,3 +740,23 @@ class UserProfileView(LoginRequiredMixin, UpdateView):
         if request.user.profile.id != self.kwargs.get('pk'):
             return redirect('/')
         return super().dispatch(request, *args, **kwargs)
+
+
+class ContactusFormView(FormView):
+    template_name = 'app/contactus.html'
+    form_class = ContactusForm
+    success_url = reverse_lazy('contactus')
+
+    def form_valid(self, form):
+        message = form.cleaned_data['message']
+        author_name = form.cleaned_data['author_name']
+
+        subject = f"Contact Us - {author_name}"
+        email = EmailMessage(
+            subject=subject,
+            body=message,
+            to=["admin@test.ir"]
+        )
+        email.send(fail_silently=False)
+        messages.success(self.request, f"Email sent successfully")
+        return super().form_valid(form)
