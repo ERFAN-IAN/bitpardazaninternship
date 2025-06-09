@@ -8,8 +8,8 @@ from phonenumber_field.formfields import PhoneNumberField
 from django.forms.widgets import ClearableFileInput
 from crispy_forms.helper import FormHelper
 from crispy_forms.layout import Layout, Fieldset, Submit
-from django.core.validators import MinLengthValidator
-
+from django.core.validators import MinLengthValidator, ValidationError, BaseValidator
+from django.utils.translation import gettext_lazy as _
 
 class CustomClearableFileInput(ClearableFileInput):
     template_name = 'app/customformuserprofile.html'
@@ -17,6 +17,23 @@ class CustomClearableFileInput(ClearableFileInput):
     input_text = 'Change'  # Customize input label
     clear_checkbox_label = 'Remove'  # Customize clear checkbox label
 
+
+class MinMaxValidator(BaseValidator):
+    message = _("Value %(value)s must be between %(min_value)s and %(max_value)s.")
+    code = "min_max_value"
+
+    def __init__(self, min_value, max_value, message=None, *args, **kwargs):
+        super().__init__(limit_value=min_value, message=message, *args, **kwargs)
+        self.max_value = max_value
+
+    def __call__(self, value):
+        cleaned = self.clean(value)
+        params = {"min_value": self.limit_value, "max_value": self.max_value, "value": cleaned}
+        if not self.compare(self.limit_value, cleaned, self.max_value):
+            raise ValidationError(self.message, code=self.code, params=params)
+
+    def compare(self, a, b, c):
+        return a <= b <= c
 
 class UserSignupForm(UserCreationForm):
     father_name = forms.CharField(max_length=150, required=True, label="Father's Name")
@@ -63,7 +80,7 @@ class BookFormSingleAjax(forms.ModelForm):
         input_formats=['%Y-%m-%dT%H:%M']  # format expected from datetime-local input
     )
     title = forms.CharField(validators=[MinLengthValidator(5, 'Title should be at least 5 characters long')])
-
+    price = forms.DecimalField(validators=[MinMaxValidator(10, 1000)])
     class Meta:
         model = Book
         fields = ["title", "release_date", "category", "image", "price"]
