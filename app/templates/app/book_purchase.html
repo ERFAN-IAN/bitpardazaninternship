@@ -5,3 +5,64 @@
         {% crispy form %}
     </div>
 {% endblock content %}
+
+{% block extra_js %}
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+    const discountCodeInput = document.querySelector('#id_discount_code');
+    const feedback = document.getElementById('discountFeedback');
+    const price = document.querySelector('#price')
+    const originalPrice = parseInt(price.textContent)
+    const dprice = document.querySelector('#dprice')
+    let isValidCode = false;
+
+    function checkDiscountCode() {
+        const code = discountCodeInput.value;
+        if (!code) {
+            feedback.innerHTML = '';
+            isValidCode = true;
+            return;
+        }
+        fetch(`/check_discount_code/?code=${encodeURIComponent(code)}`)
+            .then(response => response.json())
+            .then(data => {
+                isValidCode = data.is_valid || !code;
+
+                if (data.is_valid) {
+                    console.log(data.discount_amount)
+                    feedback.innerHTML = `
+                        <i class="fas fa-check-circle" style="color:green;" aria-hidden="true"></i>
+                    `;
+                    let discounted_price = originalPrice * (100 - data.discount_amount)/100
+                    let discountHtml = ` -> ${discounted_price.toFixed(2)}$`
+                    dprice.textContent = discountHtml
+                    price.style.textDecoration = "line-through";
+                    price.style.color = "#888";
+                } else {
+                    feedback.innerHTML = `
+                        <i class="fas fa-times-circle" style="color:red;" aria-hidden="true"></i>
+                    `;
+                    dprice.textContent = ''
+                    price.style.textDecoration = "none";
+                    price.style.color = "";
+                }
+            })
+            .catch(error => {
+                feedback.innerHTML = `
+                    <i class="fas fa-exclamation-circle" style="color:red;" aria-hidden="true"></i>
+                `;
+                isValidCode = false;
+            });
+    }
+
+    discountCodeInput.addEventListener('blur', checkDiscountCode);
+
+    document.querySelector('form').addEventListener('submit', function(e) {
+        if (discountCodeInput.value && !isValidCode) {
+            alert('Please enter a valid discount code!');
+            e.preventDefault();
+        }
+    });
+});
+</script>
+{% endblock %}

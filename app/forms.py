@@ -7,7 +7,7 @@ from django_select2.forms import ModelSelect2Widget, Select2MultipleWidget
 from phonenumber_field.formfields import PhoneNumberField
 from django.forms.widgets import ClearableFileInput
 from crispy_forms.helper import FormHelper
-from crispy_forms.layout import Layout, Fieldset, Submit, Button, HTML
+from crispy_forms.layout import Layout, Fieldset, Submit, Button, HTML, Div
 from crispy_forms.bootstrap import FormActions
 from django.core.validators import MinLengthValidator, ValidationError, BaseValidator
 from django.utils.translation import gettext_lazy as _
@@ -278,10 +278,11 @@ class PurchaseBookForm(forms.Form):
         self.helper = FormHelper()
         self.helper.layout = Layout(
             HTML(f'<p style="font-size: 1.5rem; text-align: center">Buying <strong>{self.book_title}</strong> for '
-                 f'<strong>{self.price}$</strong>.</p>'),
-            Fieldset(
-                'Add Coupon',
-                'discount_code'
+                 f'<span id="price"><strong>{self.price}$</strong></span><strong><span id="dprice"></span></strong>.</p>'),
+            Div(
+                Div('discount_code', css_class="flex-grow-1"),
+                HTML('<div id="discountFeedback" style="margin-top: 1rem; margin-left: 1rem"></div>'),
+                css_class="w-100 d-flex align-items-center"
             ),
             FormActions(
                 Submit('submit', 'Proceed', css_class='btn-primary'),

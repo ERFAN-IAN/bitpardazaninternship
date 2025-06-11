@@ -5,7 +5,8 @@ from django.views.generic import (
     DeleteView,
     DetailView,
     TemplateView,
-    FormView
+    FormView,
+    View
 )
 from .forms import UserSignupForm, BookForm, BookFormSingleNoAjax, BookFormSingleAjax, BookSelectForm, \
     ForgotPasswordForm, ConfirmCodeForm, SmsConfirmCodeForm, TestForm, UserProfileForm, ContactusForm, PurchaseBookForm, ConfirmBookPurchaseForm
@@ -38,13 +39,13 @@ from datetime import timedelta
 from django.contrib.auth.mixins import UserPassesTestMixin
 from django.core.mail import EmailMessage
 from decimal import Decimal
+from django.http import JsonResponse
 
 # from django.views.generic.detail import SingleObjectMixin
 # from braces.views import SuperuserRequiredMixin
 # from django.contrib.auth.decorators import user_passes_test
 # from django.utils.decorators import method_decorator
 # from chartjs.views.pie import HighChartPieView
-# from django.http import JsonResponse
 # from django.db.models import Sum
 # from .reports import AuthorBookReport
 # from django.shortcuts import render
@@ -408,6 +409,22 @@ class BookPurchaseView(LoginRequiredMixin, FormView):
 
     def get_success_url(self):
         return reverse("confirm_purchase", kwargs={"pk": self.kwargs["pk"]})
+
+
+class CheckDiscountCodeView(View):
+
+    def get(self, request, *args, **kwargs):
+        is_valid = False
+        percentage = 0
+        discount_query = request.GET.get('code', '')
+        discount = Discount.objects.filter(discount_code=discount_query).first()
+        if discount:
+            is_valid = True
+            percentage = discount.percentage
+        return JsonResponse({
+            'is_valid': is_valid,
+            'discount_amount': percentage
+        })
 
 
 class ConfirmBookPurchaseView(LoginRequiredMixin, FormView):
