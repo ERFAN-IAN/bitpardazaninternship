@@ -23,7 +23,7 @@ from .views import (
     SignUpCreateView,
     BooksListView,
     BookSelectView,
-    BookPurchaseView,
+    ConfirmBookPurchaseView,
     ForgotPasswordFormView,
     ResetPasswordFormView,
     ConfirmCodeFormView,
@@ -35,7 +35,8 @@ from .views import (
     TestView,
     PurchaseView,
     UserProfileView,
-    ContactusFormView
+    ContactusFormView,
+    BookPurchaseView
 )
 from .reports import BookSalesReport, BookPublicationReport, AuthorByCountryReport
 
@@ -65,6 +66,7 @@ urlpatterns = [
     path('booklist/', BooksListView.as_view(), name='booklist'),
     path('bookselect/', BookSelectView.as_view(), name='bookselect'),
     path('purchase_book/<int:pk>/', BookPurchaseView.as_view(), name='purchase_page'),
+    path('confirm_purchase/<int:pk>/', ConfirmBookPurchaseView.as_view(), name='confirm_purchase'),
     path('forgotpassword/', ForgotPasswordFormView.as_view(), name='forgotpassword'),
     path('resetpassword/', ResetPasswordFormView.as_view(), name='resetpassword'),
     path('confirm_code/', ConfirmCodeFormView.as_view(), name='confirm_code'),

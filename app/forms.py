@@ -7,7 +7,8 @@ from django_select2.forms import ModelSelect2Widget, Select2MultipleWidget
 from phonenumber_field.formfields import PhoneNumberField
 from django.forms.widgets import ClearableFileInput
 from crispy_forms.helper import FormHelper
-from crispy_forms.layout import Layout, Fieldset, Submit
+from crispy_forms.layout import Layout, Fieldset, Submit, Button, HTML
+from crispy_forms.bootstrap import FormActions
 from django.core.validators import MinLengthValidator, ValidationError, BaseValidator
 from django.utils.translation import gettext_lazy as _
 import datetime
@@ -262,4 +263,47 @@ class ContactusForm(forms.Form):
                 "message",
             ),
             Submit('submit', 'Send Email', css_class='btn-primary'),
+        )
+
+
+class PurchaseBookForm(forms.Form):
+    discount_code = forms.CharField(max_length=100, required=False, label="Discount code (leave empty if you don't "
+                                                                          "have one) :")
+
+    def __init__(self, *args, **kwargs):
+        self.cancel_url = kwargs.pop('cancel_url')
+        self.book_title = kwargs.pop('book_title')
+        self.price = kwargs.pop('price')
+        super(PurchaseBookForm, self).__init__(*args, **kwargs)
+        self.helper = FormHelper()
+        self.helper.layout = Layout(
+            HTML(f'<p style="font-size: 1.5rem; text-align: center">Buying <strong>{self.book_title}</strong> for '
+                 f'<strong>{self.price}$</strong>.</p>'),
+            Fieldset(
+                'Add Coupon',
+                'discount_code'
+            ),
+            FormActions(
+                Submit('submit', 'Proceed', css_class='btn-primary'),
+                Button('cancel', 'Cancel', css_class='btn btn-secondary',
+                       onclick=f"window.location.href='{self.cancel_url}'"),
+            ),
+        )
+
+
+class ConfirmBookPurchaseForm(forms.Form):
+    def __init__(self, *args, **kwargs):
+        self.cancel_url = kwargs.pop('cancel_url')
+        self.book_title = kwargs.pop('book_title')
+        self.price = kwargs.pop('price')
+        super(ConfirmBookPurchaseForm, self).__init__(*args, **kwargs)
+        self.helper = FormHelper()
+        self.helper.layout = Layout(
+            HTML(f'<p style="font-size: 1.5rem;">Are you sure you want to buy <strong>{self.book_title}</strong> for '
+                 f'<strong>{self.price}$</strong>?</p>'),
+            FormActions(
+                Submit('submit', 'Purchase', css_class='btn-primary'),
+                Button('cancel', 'Cancel', css_class='btn btn-secondary',
+                       onclick=f"window.location.href='{self.cancel_url}'"),
+            ),
         )

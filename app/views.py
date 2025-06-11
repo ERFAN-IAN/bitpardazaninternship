@@ -8,11 +8,11 @@ from django.views.generic import (
     FormView
 )
 from .forms import UserSignupForm, BookForm, BookFormSingleNoAjax, BookFormSingleAjax, BookSelectForm, \
-    ForgotPasswordForm, ConfirmCodeForm, SmsConfirmCodeForm, TestForm, UserProfileForm, ContactusForm
+    ForgotPasswordForm, ConfirmCodeForm, SmsConfirmCodeForm, TestForm, UserProfileForm, ContactusForm, PurchaseBookForm, ConfirmBookPurchaseForm
 from braces.views import GroupRequiredMixin
 from django.utils.dateparse import parse_datetime
 from django.urls import reverse_lazy, reverse
-from .models import Author, Book, BookCategory, UserProfile, Purchase, PasswordResetCode
+from .models import Author, Book, BookCategory, UserProfile, Purchase, PasswordResetCode, Discount
 from django.db.models import Q, Count
 from django.shortcuts import get_object_or_404, redirect
 from django_tables2 import SingleTableView, SingleTableMixin
@@ -37,6 +37,7 @@ from two_factor.views import LoginView as TwoFactorLoginView
 from datetime import timedelta
 from django.contrib.auth.mixins import UserPassesTestMixin
 from django.core.mail import EmailMessage
+from decimal import Decimal
 
 # from django.views.generic.detail import SingleObjectMixin
 # from braces.views import SuperuserRequiredMixin
@@ -377,35 +378,85 @@ import logging
 
 
 class BookPurchaseView(LoginRequiredMixin, FormView):
-    template_name = "app/purchaseconfirmation.html"
-    success_url = '/'
-    form_class = forms.Form
+    template_name = "app/book_purchase.html"
+    form_class = PurchaseBookForm
+
+    def __init__(self, *args, **kwargs):
+        super().__init__(*args, **kwargs)
+        self.book = None
 
     def dispatch(self, request, *args, **kwargs):
         self.book = get_object_or_404(Book, pk=kwargs['pk'])
         return super().dispatch(request, *args, **kwargs)
 
-    def get_context_data(self, **kwargs):
-        context = super().get_context_data(**kwargs)
-        context['book'] = self.book
-        return context
+    def get_form_kwargs(self):
+        kwargs = super().get_form_kwargs()
+        author_id = self.book.author.id
+        cancel_url = reverse('author_detail', kwargs={'pk': author_id})
+        book_title = self.book.title
+        price = self.book.price
+        kwargs.update({'cancel_url': cancel_url, 'book_title': book_title, 'price': price})
+        return kwargs
+
+    def form_valid(self, form):
+        discount_code = form.cleaned_data.get('discount_code')
+        if discount_code:
+            self.request.session['discount_code'] = discount_code
+        else:
+            self.request.session.pop('discount_code', None)
+        return super().form_valid(form)
+
+    def get_success_url(self):
+        return reverse("confirm_purchase", kwargs={"pk": self.kwargs["pk"]})
+
+
+class ConfirmBookPurchaseView(LoginRequiredMixin, FormView):
+    template_name = "app/book_purchase.html"
+    success_url = '/'
+    form_class = ConfirmBookPurchaseForm
+
+    def __init__(self, *args, **kwargs):
+        super().__init__(*args, **kwargs)
+        self.book = None
+        self.discount_code = None
+        self.percentage = None
+
+    def dispatch(self, request, *args, **kwargs):
+        purchase_page = reverse('purchase_page', kwargs={'pk': kwargs.get('pk')})
+        confirm_page = reverse('confirm_purchase', kwargs={'pk': kwargs.get('pk')})
+        prev_url = str(request.META.get('HTTP_REFERER'))
+        if purchase_page not in prev_url and confirm_page not in prev_url:
+            self.request.session.pop('discount_code', None)
+            return redirect(reverse('purchase_page', kwargs={'pk': kwargs.get('pk')}))
+        self.book = get_object_or_404(Book, pk=kwargs['pk'])
+        self.discount_code = self.request.session.get('discount_code', None)
+        self.percentage = self.get_discount_percentage(self.discount_code)
+        return super().dispatch(request, *args, **kwargs)
+
+    def get_form_kwargs(self):
+        kwargs = super().get_form_kwargs()
+        author_id = self.book.author.id
+        cancel_url = reverse('author_detail', kwargs={'pk': author_id})
+        price = self.get_discounted_price()
+        kwargs.update({'cancel_url': cancel_url, 'book_title': self.book.title, 'price': price})
+        return kwargs
 
     def form_valid(self, form):
         user = self.request.user
         book = self.book
+        price = self.get_discounted_price()
         logger = logging.getLogger(__name__)
         try:
             with transaction.atomic():
                 user = user.__class__.objects.select_for_update().get(pk=user.pk)
-
-                if user.profile.balance < book.price:
+                if user.profile.balance < price:
                     messages.error(self.request, "Insufficient balance to buy this book.")
                     return redirect('/')
-                user.profile.balance -= book.price
+                user.profile.balance -= price
                 user.save()
 
-                Purchase.objects.create(user=user, book=book, price=book.price)
-
+                Purchase.objects.create(user=user, book=book, price=price)
+                self.request.session.pop('discount_code', None)
                 messages.success(self.request, f"You have successfully purchased '{book.title}'.")
                 return super().form_valid(form)
 
@@ -413,6 +464,20 @@ class BookPurchaseView(LoginRequiredMixin, FormView):
             logger.error("Purchase error: %s", e, exc_info=True)
             messages.error(self.request, "An error occurred during purchase. Please try again.")
             return redirect('/')
+
+    def get_discount_percentage(self, discount_code):
+        if not discount_code:
+            return None
+        try:
+            return Discount.objects.get(discount_code=discount_code).percentage
+        except Discount.DoesNotExist:
+            return None
+
+    def get_discounted_price(self):
+        if self.percentage:
+            discount_multiplier = Decimal('1') - (Decimal(str(self.percentage)) / Decimal('100'))
+            return self.book.price * discount_multiplier
+        return self.book.price
 
 
 class ForgotPasswordFormView(FormView):

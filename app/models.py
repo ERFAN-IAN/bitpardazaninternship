@@ -1,7 +1,7 @@
 from django.db import models
 from django.core.exceptions import ValidationError
 from django.utils import timezone
-from django.core.validators import MaxValueValidator
+from django.core.validators import MaxValueValidator, MinValueValidator
 from django.contrib.auth.models import User
 from decimal import Decimal
 from phonenumber_field.modelfields import PhoneNumberField
@@ -88,3 +88,13 @@ class PasswordResetCode(models.Model):
 
     def is_expired(self):
         return timezone.now() > self.expires_at
+
+
+class Discount(models.Model):
+    discount_code = models.CharField(max_length=100, unique=True)
+    percentage = models.PositiveIntegerField(
+        validators=[MinValueValidator(1), MaxValueValidator(100)]
+    )
+
+    def __str__(self):
+        return f"{self.discount_code} ({self.percentage}%)"
